@@ -11,7 +11,8 @@ public:
     MyImage();
     //Image(string imageDir);
     MyImage(string imageDir, int loadType=IMREAD_GRAYSCALE);
-    
+	MyImage(const Mat &image);
+
     static void showImage(const Mat& imageMat, string imageName="image"){
         imshow(imageName, imageMat);
         waitKey(0);
