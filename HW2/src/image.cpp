@@ -15,3 +15,7 @@ void MyImage::showImage(string windowName, int windowSize){
     imshow("image", this->image);
     waitKey(0);
 }
+
+Mat MyImage::applyConv2d(const Mat& kernel){
+    return ImageOperator::conv2d(this->image, kernel);
+}

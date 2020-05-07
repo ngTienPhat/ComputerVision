@@ -4,20 +4,20 @@
 
 int main(){
     string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
-    string image_dir = "1.jpg";
+    string image_dir = "lena.jpg";
 
-    //MyImage my_image = MyImage(data_dir + "/"+image_dir);
-    //my_image.showImage();
+    MyImage my_image = MyImage(data_dir + "/"+image_dir, IMREAD_GRAYSCALE);    
 
+    Mat sobelGx = KernelGenerator::getSobelKernelGx();
+    Mat sobelGy = KernelGenerator::getSobelKernelGy();
 
-    Mat laplaceGx = KernelGenerator::getLaplaceKernelGx();
-    cout << laplaceGx << endl;
+    Mat imageGx = my_image.applyConv2d(sobelGx);
+    MyImage::showImage(imageGx, "Sobel_Gx");
 
-    for(int i= 0; i < 3; i++){
-        for(int j = 0; j < 3; j++){
-            cout << laplaceGx.at<float>(i, j) << endl;
-        }
-    }
+    Mat imageGy = my_image.applyConv2d(sobelGy);
+    MyImage::showImage(imageGy, "Sobel_Gy");
 
+    Mat result = ImageOperator::addMatAbs(imageGx, imageGy);
+    MyImage::showImage(result, "final");
     return 0;
 }

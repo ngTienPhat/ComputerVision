@@ -1,7 +1,7 @@
 #ifndef MY_IMAGE_HPP__
 #define MY_IMAGE_HPP__
 
-#include "common.hpp"
+#include "image_operator.hpp"
 
 class MyImage{
 private:
@@ -12,8 +12,12 @@ public:
     //Image(string imageDir);
     MyImage(string imageDir, int loadType=IMREAD_GRAYSCALE);
     
+    static void showImage(const Mat& imageMat, string imageName="image"){
+        imshow(imageName, imageMat);
+        waitKey(0);
+    }
     void showImage(string windowName="Display window", int windowSize=WINDOW_AUTOSIZE);
-
+    Mat applyConv2d(const Mat& kernel);
 };
 
 #endif //MY_IMAGE_HPP__

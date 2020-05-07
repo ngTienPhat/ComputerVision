@@ -10,8 +10,6 @@ class ImageOperator{
 public:
 
     static Mat conv2d(const Mat& source, const Mat& kernel, string padding="same", int stride=1){
-        int kHeight = kernel.rows;
-        int kWidth = kernel.cols;
         int sHeight = source.rows;
         int sWidth= source.cols;
         int sChannel = source.channels();
@@ -20,45 +18,61 @@ public:
 
         for(int y = 0; y < sHeight; y++){
             for(int x = 0; x < sWidth; x++){
-                sClone.at<float>(y, x, 0) = applyConvolutionAtPosition(source, x, y, kernel);
+                int res = applyConvolutionAtPosition(source, x, y, kernel);
+                res = res > 255 ? 255:res;
+                res = res < 0 ? 0 : res;
+                sClone.at<uchar>(y, x) = res;
             }
         }
         return sClone;
     }
 
+    static Mat addMatAbs(const Mat& a, const Mat& b){
+        Mat result = a.clone();
+        int aHeight = a.rows;
+        int aWidth = a.cols;
+
+        for(int y = 0; y < aHeight; y++){
+            for(int x = 0; x < aWidth; x++){
+                int sum = a.at<uchar>(y, x) + b.at<uchar>(y, x);
+                sum = sum > 255 ? 255:sum;
+                sum = sum < 0 ? 0 : sum;
+                result.at<uchar>(y, x) = sum;
+            }
+        }
+        return result;
+    }
+
 
 // HELPER FUNCTION:
 private:
-    static float applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel){
+    static int applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel){
         int sWidth = source.cols;
         int sHeight = source.rows;
 
         int kHeight = kernel.rows;
         int kWidth = kernel.cols;
-        int kCenterX = kWidth/2;
-        int kCenterY = kHeight/2;
 
-        int startSourceX = x - kCenterX;
-        int startSourceY = y - kCenterY;
+        int startSourceX = x + kWidth/2;
+        int startSourceY = y + kHeight/2;
 
-        float convResult = 0;
+        int convResult = 0;
         for(int ky = 0; ky < kHeight; ky++){
-            int kRowIndex = kHeight-1-ky;
-            if (startSourceY + ky < 0 || startSourceY + ky >= sHeight){
-                continue;
-            }
+            int sourceY = startSourceY - ky;
 
             for(int kx = 0; kx < kWidth; kx++){
-                int kColIndex = kWidth-1-kx;
+                int sourceX =  startSourceX - kx;
 
-                if (startSourceX + kx >= 0 && startSourceX + kx < sWidth){
-                    convResult += source.at<float>(startSourceY + ky, startSourceX + kx, 0) * kernel.at<float>(kRowIndex, kColIndex, 0);
-                }
+                if (sourceY < 0 || sourceY >= sHeight ||sourceX < 0 ||sourceX >= sWidth)
+                    continue;
+
+                convResult += source.at<uchar>(startSourceY - ky, startSourceX - kx) * kernel.at<int>(ky, kx);
             }
         }
 
         return convResult;
     }
+
 };
 
 #endif //IMAGE_OPERATOR_HPP__
