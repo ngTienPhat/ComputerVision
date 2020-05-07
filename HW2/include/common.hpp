@@ -8,11 +8,6 @@
 #include <vector>
 #include <cmath>
 
-using std::vector;
-using std::cin;
-using std::cout;
-using std::endl;
-using std::string;
 using namespace std;
 using namespace cv;
 
