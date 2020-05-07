@@ -18,6 +18,7 @@ public:
     }
     void showImage(string windowName="Display window", int windowSize=WINDOW_AUTOSIZE);
     Mat applyConv2d(const Mat& kernel);
+	Mat removeNoise(const Mat& kernel);
 };
 
 #endif //MY_IMAGE_HPP__

@@ -3,13 +3,17 @@
 #include "kernel_generator.hpp"
 
 int main(){
-    string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
-    string image_dir = "lena.jpg";
+    string image_dir = "lena.png";
 
-    MyImage my_image = MyImage(data_dir + "/"+image_dir, IMREAD_GRAYSCALE);    
+    MyImage my_image = MyImage(image_dir, IMREAD_GRAYSCALE);    
 
+	Mat gaussianBlur3x3 = KernelGenerator::getGaussianBlur3x3();
+	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
     Mat sobelGx = KernelGenerator::getSobelKernelGx();
     Mat sobelGy = KernelGenerator::getSobelKernelGy();
+
+	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
+	MyImage::showImage(removeNoiseImage, "removeNoise");
 
     Mat imageGx = my_image.applyConv2d(sobelGx);
     MyImage::showImage(imageGx, "Sobel_Gx");
