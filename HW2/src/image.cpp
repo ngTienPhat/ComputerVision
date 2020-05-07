@@ -6,6 +6,12 @@ MyImage::MyImage(string imageDir, int loadType){
             << this->image.cols << "," << this->image.channels() << ")\n";
 }
 
+MyImage::MyImage(const Mat &image) {
+	this->image = image.clone();
+	cout << "image shape: (" << this->image.rows << ","
+		<< this->image.cols << "," << this->image.channels() << ")\n";
+}
+
 // Image::Image(string imageDir){
 //     this->image = imread(imageDir, IMREAD_GRAYSCALE);
 // }

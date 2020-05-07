@@ -43,17 +43,12 @@ public:
 			                       1, 1, 1);
     }
 
-    static Mat getLaplaceKernelGx(){ //fix
+    static Mat getLaplaceKernel(){ //fix
         return (Mat_<int>(3,3) << 0, -1, 0, 
 			                     -1, 4, -1, 
 			                      0, -1, 0);
     }
 
-    static Mat getLaplaceKernelGy(){ //fix
-        return (Mat_<int>(3,3) << -1, -1, -1, 
-			                      -1, 8, -1, 
-								  -1, -1, -1);
-    }
 };
 
 #endif // KERNEL_GENERATOR_HPP__

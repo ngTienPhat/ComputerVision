@@ -11,9 +11,12 @@ int main(){
 	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
     Mat sobelGx = KernelGenerator::getSobelKernelGx();
     Mat sobelGy = KernelGenerator::getSobelKernelGy();
+	Mat laplacianFilter = KernelGenerator::getLaplaceKernel();
 
 	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
 	MyImage::showImage(removeNoiseImage, "removeNoise");
+
+	my_image = MyImage(removeNoiseImage);
 
     Mat imageGx = my_image.applyConv2d(sobelGx);
     MyImage::showImage(imageGx, "Sobel_Gx");
@@ -21,7 +24,8 @@ int main(){
     Mat imageGy = my_image.applyConv2d(sobelGy);
     MyImage::showImage(imageGy, "Sobel_Gy");
 
-    Mat result = ImageOperator::addMatAbs(imageGx, imageGy);
-    MyImage::showImage(result, "final");
+    //Mat result = ImageOperator::addMatAbs(imageGx, imageGy);
+	Mat result = my_image.applyConv2d(laplacianFilter);
+	MyImage::showImage(result, "final");
     return 0;
 }
