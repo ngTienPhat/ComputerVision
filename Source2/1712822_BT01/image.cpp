@@ -19,3 +19,7 @@ void MyImage::showImage(string windowName, int windowSize){
 Mat MyImage::applyConv2d(const Mat& kernel){
     return ImageOperator::conv2d(this->image, kernel);
 }
+
+Mat MyImage::removeNoise(const Mat& kernel) {
+	return ImageOperator::conv2d(this->image, kernel, "same", 1, true);
+}
