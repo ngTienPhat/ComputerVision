@@ -16,11 +16,11 @@ public:
     }
 
     static Mat getPrewittKernelGx(){
-        return (Mat_<int>(3,3) << 1, 0, -1, 1, 0, -1, 1, 0, -1);
+        return (Mat_<int>(3,3) << -1, 0, 1, -1, 0, 1, -1, 0, 1);
     }
 
     static Mat getPrewittKernelGy(){
-        return (Mat_<int>(3,3) << 1, 1, 1, 0, 0, 0, -1, -1, -1);
+        return (Mat_<int>(3,3) << -1, -1, -1, 0, 0, 0, 1, 1, 1);
     }
 
     static Mat getLaplaceKernelGx(){
