@@ -4,20 +4,20 @@
 
 int main(){
     string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
-    string image_dir = "lena.jpg";
+    string image_dir = data_dir + "/lena.jpg";
 
-    MyImage my_image = MyImage(data_dir + "/"+image_dir, IMREAD_GRAYSCALE);    
+    MyImage my_image = MyImage(image_dir, IMREAD_GRAYSCALE);    
 
-    Mat sobelGx = KernelGenerator::getSobelKernelGx();
-    Mat sobelGy = KernelGenerator::getSobelKernelGy();
+	Mat gaussianBlur3x3 = KernelGenerator::getGaussianBlur3x3();
+	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
 
-    Mat imageGx = my_image.applyConv2d(sobelGx);
-    MyImage::showImage(imageGx, "Sobel_Gx");
+	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
 
-    Mat imageGy = my_image.applyConv2d(sobelGy);
-    MyImage::showImage(imageGy, "Sobel_Gy");
+	my_image = MyImage(removeNoiseImage);
 
-    Mat result = ImageOperator::addMatAbs(imageGx, imageGy);
-    MyImage::showImage(result, "final");
+    Mat laplacianResult = my_image.applyEdgeDetection("laplacian");
+    MyImage laplacian_image = MyImage(laplacianResult);
+    laplacian_image.showImage();
+
     return 0;
 }

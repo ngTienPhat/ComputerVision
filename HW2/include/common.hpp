@@ -11,4 +11,6 @@
 using namespace std;
 using namespace cv;
 
+void printMatrixInfo(const Mat &source);
+
 #endif //COMMON_HPP__
