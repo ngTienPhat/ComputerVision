@@ -11,21 +11,29 @@ int main(){
 	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
     Mat sobelGx = KernelGenerator::getSobelKernelGx();
     Mat sobelGy = KernelGenerator::getSobelKernelGy();
+	Mat prewittGx = KernelGenerator::getPrewittKernelGx();
+	Mat prewittGy = KernelGenerator::getPrewittKernelGy();
 	Mat laplacianFilter = KernelGenerator::getLaplaceKernel();
 
-	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
+	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur3x3);
 	MyImage::showImage(removeNoiseImage, "removeNoise");
+	
+	MyImage removeNoiseGrayscale(removeNoiseImage);
 
-	my_image = MyImage(removeNoiseImage);
-
-    Mat imageGx = my_image.applyConv2d(sobelGx);
+    Mat imageGx = removeNoiseGrayscale.applyConv2d(prewittGx);
     MyImage::showImage(imageGx, "Sobel_Gx");
 
-    Mat imageGy = my_image.applyConv2d(sobelGy);
-    MyImage::showImage(imageGy, "Sobel_Gy");
+	Mat imageGy = removeNoiseGrayscale.applyConv2d(prewittGy);
+	MyImage::showImage(imageGx, "Sobel_Gy");
 
-    //Mat result = ImageOperator::addMatAbs(imageGx, imageGy);
-	Mat result = my_image.applyConv2d(laplacianFilter);
-	MyImage::showImage(result, "final");
+	Mat magnitude = ImageOperator::magnitude(imageGx, imageGy);
+	MyImage::showImage(magnitude, "Sobel");
+
+	Mat direction = ImageOperator::computeDirection(imageGx, imageGy);
+
+	ImageOperator::NonMaxSuppression(direction, magnitude);
+	Mat canny_result = ImageOperator::HysteresisThresholding(magnitude, 100, 10);
+	MyImage::showImage(canny_result, "Canny");
+
     return 0;
-}
+}	

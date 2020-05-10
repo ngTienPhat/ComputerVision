@@ -43,7 +43,7 @@ public:
 			                       1, 1, 1);
     }
 
-    static Mat getLaplaceKernel(){ //fix
+    static Mat getLaplaceKernel(){ 
         return (Mat_<int>(3,3) << 0, -1, 0, 
 			                     -1, 4, -1, 
 			                      0, -1, 0);
