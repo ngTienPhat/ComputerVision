@@ -5,10 +5,8 @@
 
 class ImageOperator{
 
-
 // PUBLIC FUNCTIONS
 public:
-
     static Mat conv2d(const Mat& source, const Mat& kernel, string padding="same", int stride=1, bool useFloat=false){
         int sHeight = source.rows;
         int sWidth= source.cols;
@@ -27,7 +25,7 @@ public:
         return sClone;
     }
 
-    static Mat addMatAbs(const Mat& a, const Mat& b){
+    static Mat magnitude(const Mat& a, const Mat& b){
         Mat result = a.clone();
         int aHeight = a.rows;
         int aWidth = a.cols;
@@ -42,7 +40,122 @@ public:
         }
         return result;
     }
+	static Mat computeDirection(const Mat& gx, const Mat &gy) {
+		Mat result = gx.clone();
+		int aHeight = result.rows;
+		int aWidth = result.cols;
 
+		double PI = 3.14159265;
+
+		for (int y = 0; y < aHeight; y++) {
+			for (int x = 0; x < aWidth; x++) {
+				double angle = atan2((double)gy.at<uchar>(y,x),(double) gx.at<uchar>(y, x)) * 180 / PI;
+				if (angle <= 22.5)
+					angle = 0;
+				else if (angle <= 67.5)
+					angle = 45;
+				else if (angle <= 112.5)
+					angle = 90;
+				else if (angle <= 157.5)
+					angle = 135;
+				else //angle > 157.5
+					angle = 0;
+				result.at<uchar>(y, x) = angle; //0, 45, 90, 135
+			}
+		}
+		return result;
+	}
+	static void NonMaxSuppression(const Mat &direction, Mat &gradient) {
+		int aHeight = direction.rows;
+		int aWidth = direction.cols;
+
+		for (int y = 0; y < aHeight; ++y){
+			for (int x = 0; x < aWidth; ++x) {
+				int angle = direction.at<uchar>(y, x);
+				uchar current_gradient = gradient.at<uchar>(y, x);
+				int compare = 0;
+
+				if (angle == 0) //compare gradient at (y, x) with (y, x + 1) & (y, x - 1)
+				{ 
+					compare += (x + 1 < aWidth) ? 
+									(current_gradient >= gradient.at<uchar>(y, x + 1)) : 1;
+					compare += (x - 1 >= 0) ? 
+									(current_gradient >= gradient.at<uchar>(y, x - 1)) : 1;
+				}
+				else if (angle == 45) //compare gradient at (y, x) with (y - 1, x + 1) & (y + 1, x - 1)
+				{
+					compare += ((x + 1 < aWidth) && (y - 1 >= 0)) ? 
+									(current_gradient >= gradient.at<uchar>(y - 1, x + 1)) : 1;
+					compare += ((x - 1 >= 0) && (y + 1 < aHeight)) ? 
+									(current_gradient >= gradient.at<uchar>(y + 1, x - 1)) : 1;
+				}
+				else if (angle == 90) //compare gradient at (y, x) with (y - 1, x) & (y + 1, x)
+				{ 
+					compare += (y + 1 < aHeight) ? 
+									(current_gradient >= gradient.at<uchar>(y + 1, x)) : 1;
+					compare += (y - 1 >= 0) ? 
+									(current_gradient >= gradient.at<uchar>(y - 1, x)) : 1;
+				}
+				else if (angle == 135) //compare gradient at (y, x) with (y - 1, x - 1) & (y + 1, x + 1)
+				{ 
+					compare += ((x - 1 >= 0) && (y - 1 >= 0)) ?
+									(current_gradient >= gradient.at<uchar>(y - 1, x - 1)) : 1;
+					compare += ((x + 1 < aWidth) && (y + 1 < aHeight)) ?
+									(current_gradient >= gradient.at<uchar>(y + 1, x + 1)) : 1;
+				}
+				if (compare < 2)
+					gradient.at<uchar>(y, x) = 0;
+			}
+		}
+	}
+	static void dfs(Mat &canny_mask, const Mat &gradient, int y, int x, double high_threshold, double low_threshold, vector<vector<bool>> &visited) { //dfs at position (y, x)
+		int height = canny_mask.rows, width = canny_mask.cols;
+
+		visited[y][x] = true;
+		canny_mask.at<uchar>(y, x) = 255;
+
+		for (int step_y = -1; step_y <= 1; ++step_y) {
+			for (int step_x = -1; step_x <= 1; ++step_x) {
+				if (y + step_y >= height || y + step_y < 0 || x + step_x >= width || x + step_x < 0)
+					continue;
+				if (visited[y + step_y][x + step_x] == true)
+					continue;
+				if (gradient.at<uchar>(y + step_y, x + step_x) >= low_threshold)
+				{
+					dfs(canny_mask, gradient, y + step_y, x + step_x, high_threshold, low_threshold, visited);
+				}
+			}
+		}
+	}
+
+	static Mat HysteresisThresholding(const Mat &gradient, double high_threshold, double low_threshold) {
+		//assert(done the non-max suppression step!)
+		Mat canny_mask = gradient.clone();
+		int aHeight = canny_mask.rows;
+		int aWidth = canny_mask.cols;
+
+		for (int y = 0; y < aHeight; ++y)
+			for (int x = 0; x < aWidth; ++x)
+				canny_mask.at<uchar>(y, x) = 0;
+
+		for (int y = 0; y < aHeight; ++y) {
+			for (int x = 0; x < aWidth; ++x) {
+				if (gradient.at<uchar>(y, x) < low_threshold)
+					canny_mask.at<uchar>(y, x) = 0;
+				else if (gradient.at<uchar>(y, x) > high_threshold)
+					canny_mask.at<uchar>(y, x) = 255;
+			}
+		}
+
+		vector<vector<bool>> visited(aHeight, vector<bool>(aWidth, false));
+
+		for (int y = 0; y < aHeight; ++y) 
+			for (int x = 0; x < aWidth; ++x) 
+				if (canny_mask.at<uchar>(y, x) == 255 && visited[y][x] == false)
+					dfs(canny_mask, gradient, y, x, high_threshold, low_threshold, visited);
+
+		return canny_mask;
+	}
 
 // HELPER FUNCTION:
 private:
