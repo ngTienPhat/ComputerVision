@@ -25,6 +25,13 @@ void MyImage::showImage(string windowName, int windowSize){
     waitKey(0);
 }
 
+void MyImage::showImageFromMatrix(const Mat& imageMat, string windowName){
+    Mat printedMatrix;
+    imageMat.convertTo(printedMatrix, CV_8UC1);
+    imshow(windowName, printedMatrix);
+    waitKey(0);
+}
+
 Mat MyImage::applyConv2d(const Mat& kernel){
     return ImageOperator::conv2d(this->image, kernel, true);
 }

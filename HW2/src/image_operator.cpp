@@ -2,15 +2,10 @@
 
 Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage){
     MyImage image(sourceImage);
-    //Mat imageGx = image.applyConv2d(KernelGenerator::getPrewittKernelGx());
-    //Mat imageGy = image.applyConv2d(KernelGenerator::getPrewittKernelGy());
 
     string pad = "same";
     Mat imageGx = ImageOperator::conv2d(sourceImage, KernelGenerator::getPrewittKernelGx(), pad, 1, false);
     Mat imageGy = ImageOperator::conv2d(sourceImage, KernelGenerator::getPrewittKernelGy(), pad, 1, false);
-
-    printMatrixInfo(imageGx);
-    printMatrixInfo(imageGy);
 
     Mat magnitude = computeMagnitude(imageGx, imageGy);
     Mat direction = computeDirection(imageGx, imageGy);
@@ -120,7 +115,7 @@ int ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, c
             if (useFloat == false)
                 convResult_int += (int)source.at<uchar>(sourceY, sourceX) * kernel.at<int>(ky, kx);
             else
-                convResult_float += 1.0*source.at<float>(sourceY, sourceX) * kernel.at<float>(ky, kx);
+                convResult_float += 1.0*source.at<uchar>(sourceY, sourceX) * kernel.at<float>(ky, kx);
         }
     }
     return (useFloat==true)? convResult_float:convResult_int;

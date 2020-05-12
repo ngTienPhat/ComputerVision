@@ -2,27 +2,18 @@
 #include "image_operator.hpp"
 #include "kernel_generator.hpp"
 
-void test_type(){
-    Mat laplaceKerner = KernelGenerator::getSobelKernelGx();
-
-    cout << laplaceKerner.at<int>(1, 1) << endl;
-    cout << float(laplaceKerner.at<int>(1, 1)) << endl;
-    cout << laplaceKerner.at<float>(1, 1) << endl;
-}
-
 void test_edge_detection(string imageDir){
     // remove noise
     MyImage my_image = MyImage(imageDir, IMREAD_GRAYSCALE);    
 	Mat gaussianBlur3x3 = KernelGenerator::getGaussianBlur3x3();
 	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
 	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
-	
 
     //test Laplacian edge detection
-    MyImage image1 = MyImage(removeNoiseImage);
-    Mat laplacianResult = image1.applyEdgeDetection("laplacian");
-    MyImage laplacian_image = MyImage(laplacianResult);
-    laplacian_image.showImage("laplacian result");
+    // MyImage image1 = MyImage(removeNoiseImage);
+    // Mat laplacianResult = image1.applyEdgeDetection("laplacian");
+    // MyImage laplacian_image = MyImage(laplacianResult);
+    // laplacian_image.showImage("laplacian result");
 
 
     //test Canny edge detection
@@ -38,9 +29,7 @@ void test_edge_detection(string imageDir){
 int main(){
     string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
     string image_dir = data_dir + "/lena.jpg";
-    MyImage my_image = MyImage(image_dir, IMREAD_GRAYSCALE);    
     test_edge_detection(image_dir);
-
 
     return 0;
 }
