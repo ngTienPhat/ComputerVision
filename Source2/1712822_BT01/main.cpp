@@ -2,38 +2,34 @@
 #include "image_operator.hpp"
 #include "kernel_generator.hpp"
 
-int main(){
-    string image_dir = "lena.png";
-
-    MyImage my_image = MyImage(image_dir, IMREAD_GRAYSCALE);    
-
+void test_edge_detection(string imageDir) {
+	// remove noise
+	MyImage my_image = MyImage(imageDir, IMREAD_GRAYSCALE);
 	Mat gaussianBlur3x3 = KernelGenerator::getGaussianBlur3x3();
 	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
-    Mat sobelGx = KernelGenerator::getSobelKernelGx();
-    Mat sobelGy = KernelGenerator::getSobelKernelGy();
-	Mat prewittGx = KernelGenerator::getPrewittKernelGx();
-	Mat prewittGy = KernelGenerator::getPrewittKernelGy();
-	Mat laplacianFilter = KernelGenerator::getLaplaceKernel();
+	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
 
-	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur3x3);
-	MyImage::showImage(removeNoiseImage, "removeNoise");
-	
-	MyImage removeNoiseGrayscale(removeNoiseImage);
+	//test Laplacian edge detection
+	//MyImage image1 = MyImage(removeNoiseImage);
+	//image1.showImage("after blur [float]");
 
-    Mat imageGx = removeNoiseGrayscale.applyConv2d(sobelGx);
-    MyImage::showImage(imageGx, "Sobel_Gx");
+	//Mat laplacianResult = image1.applyEdgeDetection("laplacian");
 
-	Mat imageGy = removeNoiseGrayscale.applyConv2d(sobelGy);
-	MyImage::showImage(imageGx, "Sobel_Gy");
+	//MyImage laplacian_image = MyImage(laplacianResult);
+	//laplacian_image.showImage("laplacian result");
 
-	Mat magnitude = ImageOperator::magnitude(imageGx, imageGy);
-	MyImage::showImage(magnitude, "Sobel");
+	//test Canny edge detection
+	MyImage image2 = MyImage(removeNoiseImage);
+	image2.showImage("after blur [float]");
+	Mat cannyResult = image2.applyEdgeDetection("canny");
+	printMatrixInfo(cannyResult);
+	MyImage canny_image = MyImage(cannyResult);
+	canny_image.showImage("canny result");
+}
 
-	Mat direction = ImageOperator::computeDirection(imageGx, imageGy);
+int main() {
+	string image_dir = "lena.png";
+	test_edge_detection(image_dir);
 
-	ImageOperator::NonMaxSuppression(direction, magnitude);
-	Mat canny_result = ImageOperator::HysteresisThresholding(magnitude, 100, 5);
-	MyImage::showImage(canny_result, "Canny");
-
-    return 0;
-}	
+	return 0;
+}
