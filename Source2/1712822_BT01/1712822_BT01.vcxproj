@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="image_operator.cpp" />
     <ClCompile Include="kernel_generator.cpp" />

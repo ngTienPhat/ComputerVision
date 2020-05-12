@@ -33,7 +33,7 @@ Mat MyImage::applyConv2d(const Mat& kernel){
 }
 
 Mat MyImage::removeNoise(const Mat& kernel) {
-	return ImageOperator::conv2d(this->image, kernel, true, false);
+	return ImageOperator::conv2d(this->image, kernel, false, false);
 }
 
 Mat MyImage::getData(){
