@@ -148,10 +148,12 @@
     <ClCompile Include="common.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="image_operator.cpp" />
+    <ClCompile Include="image_operator_opencv.cpp" />
     <ClCompile Include="kernel_generator.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="image_operator_opencv.hpp" />
     <ClInclude Include="include\common.hpp" />
     <ClInclude Include="include\image.hpp" />
     <ClInclude Include="include\image_operator.hpp" />
