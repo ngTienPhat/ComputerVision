@@ -2,38 +2,34 @@
 #include "image_operator.hpp"
 #include "kernel_generator.hpp"
 
-int main(){
-    string image_dir = "lena.png";
-
-    MyImage my_image = MyImage(image_dir, IMREAD_GRAYSCALE);    
-
+void test_edge_detection(string imageDir){
+    // remove noise
+    MyImage my_image = MyImage(imageDir, IMREAD_GRAYSCALE);    
 	Mat gaussianBlur3x3 = KernelGenerator::getGaussianBlur3x3();
 	Mat gaussianBlur5x5 = KernelGenerator::getGaussianBlur5x5();
-    Mat sobelGx = KernelGenerator::getSobelKernelGx();
-    Mat sobelGy = KernelGenerator::getSobelKernelGy();
-	Mat prewittGx = KernelGenerator::getPrewittKernelGx();
-	Mat prewittGy = KernelGenerator::getPrewittKernelGy();
-	Mat laplacianFilter = KernelGenerator::getLaplaceKernel();
+	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
 
-	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur3x3);
-	MyImage::showImage(removeNoiseImage, "removeNoise");
-	
-	MyImage removeNoiseGrayscale(removeNoiseImage);
+    //test Laplacian edge detection
+    // MyImage image1 = MyImage(removeNoiseImage);
+    // Mat laplacianResult = image1.applyEdgeDetection("laplacian");
+    // MyImage laplacian_image = MyImage(laplacianResult);
+    // laplacian_image.showImage("laplacian result");
 
-    Mat imageGx = removeNoiseGrayscale.applyConv2d(prewittGx);
-    MyImage::showImage(imageGx, "Sobel_Gx");
 
-	Mat imageGy = removeNoiseGrayscale.applyConv2d(prewittGy);
-	MyImage::showImage(imageGx, "Sobel_Gy");
+    //test Canny edge detection
+    MyImage image2 = MyImage(
+        ImageOperator::conv2d(my_image.getData(), gaussianBlur3x3, "same", 1, true)
+    );
+    Mat cannyResult = image2.applyEdgeDetection("canny");
+    printMatrixInfo(cannyResult);
+    MyImage canny_image = MyImage(cannyResult);
+    canny_image.showImage("canny result");
+}
 
-	Mat magnitude = ImageOperator::magnitude(imageGx, imageGy);
-	MyImage::showImage(magnitude, "Sobel");
-
-	Mat direction = ImageOperator::computeDirection(imageGx, imageGy);
-
-	ImageOperator::NonMaxSuppression(direction, magnitude);
-	Mat canny_result = ImageOperator::HysteresisThresholding(magnitude, 100, 10);
-	MyImage::showImage(canny_result, "Canny");
+int main(){
+    string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
+    string image_dir = data_dir + "/lena.jpg";
+    test_edge_detection(image_dir);
 
     return 0;
 }	
