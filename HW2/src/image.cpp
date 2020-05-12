@@ -8,8 +8,8 @@ MyImage::MyImage(string imageDir, int loadType){
 
 MyImage::MyImage(const Mat &image) {
 	this->image = image.clone();
-	cout << "image shape: (" << this->image.rows << ","
-		<< this->image.cols << "," << this->image.channels() << ")\n";
+	// cout << "image shape: (" << this->image.rows << ","
+	// 	<< this->image.cols << "," << this->image.channels() << ")\n";
 }
 
 // Image::Image(string imageDir){
@@ -21,7 +21,7 @@ void MyImage::showImage(string windowName, int windowSize){
     Mat printedMatrix;
     this->image.convertTo(printedMatrix, CV_8UC1);
     //imshow(windowName, printedMatrix);
-    imshow("image", printedMatrix);
+    imshow(windowName, printedMatrix);
     waitKey(0);
 }
 
@@ -40,6 +40,9 @@ Mat MyImage::getData(){
 Mat MyImage::applyEdgeDetection(string method){
     if (method == "laplacian"){
         return ImageOperator::EdgeDetectLaplacian(this->image);
+    }
+    if (method == "canny"){
+        return ImageOperator::EdgeDetectCanny(this->image);
     }
     return this->image;
 }
