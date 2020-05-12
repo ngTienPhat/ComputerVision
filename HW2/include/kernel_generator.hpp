@@ -20,25 +20,25 @@ public:
 									 2.0 / 159, 4.0 / 159, 5.0 / 159, 4.0 / 159, 2.0 / 159);
 	}
 	static Mat getSobelKernelGx(){
-        return (Mat_<int>(3,3) << -1, 0, 1, 
+        return (Mat_<float>(3,3) << -1, 0, 1, 
 								  -2, 0, 2, 
 			                      -1, 0, 1);
     }
 
     static Mat getSobelKernelGy(){
-        return (Mat_<int>(3,3) << -1, -2, -1, 
+        return (Mat_<float>(3,3) << -1, -2, -1, 
 			                       0, 0, 0, 
 			                       1, 2, 1);
     }
 
     static Mat getPrewittKernelGx(){
-        return (Mat_<int>(3,3) << -1, 0, 1,
+        return (Mat_<float>(3,3) << -1, 0, 1,
 								  -1, 0, 1, 
 			                      -1, 0, 1);
     }
 
     static Mat getPrewittKernelGy(){
-        return (Mat_<int>(3,3) << -1, -1, -1, 
+        return (Mat_<float>(3,3) << -1, -1, -1, 
 			                       0, 0, 0, 
 			                       1, 1, 1);
     }

@@ -2,18 +2,28 @@
 
 Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage) {
 	MyImage image(sourceImage);
-	Mat imageGx, imageGy = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_32FC1);
+	Mat imageGx, imageGy, magnitude = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_32FC1);
+	Mat direction, canny_result = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_8UC1);
 
 	imageGx = ImageOperator::conv2d(sourceImage, KernelGenerator::getSobelKernelGx(), true, true);
 	imageGy = ImageOperator::conv2d(sourceImage, KernelGenerator::getSobelKernelGy(), true, true);
 
-	//cout << "COME HERRE" << endl;
-	Mat magnitude = computeMagnitude(imageGx, imageGy);
-	Mat direction = computeDirection(imageGx, imageGy);
+	//MyImage gx(imageGx), gy(imageGy);
+	//gx.showImage("gx"); gy.showImage("gy");
+
+	magnitude = computeMagnitude(imageGx, imageGy);
+
+	//MyImage grad(magnitude);
+	//grad.showImage("gradient");
+
+	direction = computeDirection(imageGx, imageGy);
+
+	MyImage dirt(direction);
+	dirt.showImage("direction");
 
 	NonMaxSuppression(direction, magnitude);
 
-	Mat canny_result = HysteresisThresholding(magnitude, 100, 10);
+	canny_result = HysteresisThresholding(magnitude, 50, 10);
 	return canny_result;
 }
 
@@ -114,8 +124,9 @@ Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 	for (int y = 0; y < aHeight; y++) {
 		for (int x = 0; x < aWidth; x++) {
 			float value_gy = getValueOfMatrix(gy, y, x), value_gx = getValueOfMatrix(gx, y, x);
-			float angle = atan2(value_gy, value_gx) * 180 / PI;
+			int angle = (int)(atan2(value_gy, value_gx) * 180 / PI);
 			if (angle < 0) angle += 180;
+			cout << angle << " ";
 			if (angle <= 22.5)
 				angle = 0;
 			else if (angle <= 67.5)
@@ -128,6 +139,7 @@ Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 				angle = 0;
 			setValueOfMatrix(result, y, x, angle); //0, 45, 90, 135
 		}
+		cout << endl;
 	}
 	return result;
 }
@@ -144,54 +156,36 @@ void ImageOperator::NonMaxSuppression(const Mat &direction, Mat &gradient) {
 			current_gradient = getValueOfMatrix(gradient, y, x);
 			compare = 0;
 
-			float gradient_compare_1 = 0, gradient_compare_2 = 0;
-
+			float gradient_compare_1 = -1e8, gradient_compare_2 = -1e8;
+			
 			if (angle == 0) //compare gradient at (y, x) with (y, x + 1) & (y, x - 1)
 			{
-				gradient_compare_1 = getValueOfMatrix(gradient, y, x + 1);
-				gradient_compare_2 = getValueOfMatrix(gradient, y, x - 1);
-
-				compare += (x + 1 < aWidth) ?
-					(current_gradient >= gradient_compare_1) : 1;
-				compare += (x - 1 >= 0) ?
-					(current_gradient >= gradient_compare_2) : 1;
+				gradient_compare_1 = (x + 1 < aWidth) ? getValueOfMatrix(gradient, y, x + 1) : (-1e8);
+				gradient_compare_2 = (x - 1 >= 0) ? getValueOfMatrix(gradient, y, x - 1) : (-1e8);
 			}
 			else if (angle == 45) //compare gradient at (y, x) with (y - 1, x + 1) & (y + 1, x - 1)
 			{
-				gradient_compare_1 = getValueOfMatrix(gradient, y - 1, x + 1);
-				gradient_compare_2 = getValueOfMatrix(gradient, y + 1, x - 1);
-
-				compare += ((x + 1 < aWidth) && (y - 1 >= 0)) ?
-					(current_gradient >= gradient_compare_1) : 1;
-				compare += ((x - 1 >= 0) && (y + 1 < aHeight)) ?
-					(current_gradient >= gradient_compare_2) : 1;
+				gradient_compare_1 = ((x + 1 < aWidth) && (y - 1 >= 0)) ? getValueOfMatrix(gradient, y - 1, x + 1) : (-1e8);
+				gradient_compare_2 = ((x - 1 >= 0) && (y + 1 < aHeight)) ? getValueOfMatrix(gradient, y + 1, x - 1) : (-1e8);
 			}
 			else if (angle == 90) //compare gradient at (y, x) with (y - 1, x) & (y + 1, x)
 			{
-				gradient_compare_1 = getValueOfMatrix(gradient, y + 1, x);
-				gradient_compare_2 = getValueOfMatrix(gradient, y - 1, x);
-
-				compare += (y + 1 < aHeight) ?
-					(current_gradient >= gradient_compare_1) : 1;
-				compare += (y - 1 >= 0) ?
-					(current_gradient >= gradient_compare_2) : 1;
+				gradient_compare_1 = (y + 1 < aHeight) ? getValueOfMatrix(gradient, y + 1, x) : (-1e8);
+				gradient_compare_2 = (y - 1 >= 0) ? getValueOfMatrix(gradient, y - 1, x) : (-1e8);
 			}
 			else if (angle == 135) //compare gradient at (y, x) with (y - 1, x - 1) & (y + 1, x + 1)
 			{
-				gradient_compare_1 = getValueOfMatrix(gradient, y - 1, x - 1);
-				gradient_compare_2 = getValueOfMatrix(gradient, y + 1, x + 1);
-
-				compare += ((x - 1 >= 0) && (y - 1 >= 0)) ?
-					(current_gradient >= gradient_compare_1) : 1;
-				compare += ((x + 1 < aWidth) && (y + 1 < aHeight)) ?
-					(current_gradient >= gradient_compare_2) : 1;
+				gradient_compare_1 = ((x - 1 >= 0) && (y - 1 >= 0)) ? getValueOfMatrix(gradient, y - 1, x - 1) : (-1e8);
+				gradient_compare_2 = ((x + 1 < aWidth) && (y + 1 < aHeight)) ? getValueOfMatrix(gradient, y + 1, x + 1) : (-1e8);
 			}
+			compare += current_gradient >= gradient_compare_1;
+			compare += current_gradient >= gradient_compare_2;
 			if (compare < 2)
-				setValueOfMatrix(gradient, y, x, 0);
+				setValueOfMatrix(gradient, y, x, (float)0);
 		}
 	}
 }
-void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float high_threshold, float low_threshold, vector<vector<bool>> &visited) { //dfs at position (y, x)
+void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float low_threshold, vector<vector<bool>> &visited) { //dfs at position (y, x)
 	int height = canny_mask.rows, width = canny_mask.cols;
 
 	visited[y][x] = true;
@@ -203,11 +197,14 @@ void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, floa
 				continue;
 			if (visited[y + step_y][x + step_x] == true)
 				continue;
+			
 			float gradient_neighbor = getValueOfMatrix(gradient, y + step_y, x + step_x);
-			if (gradient_neighbor >= low_threshold)
-			{
-				dfs(canny_mask, gradient, y + step_y, x + step_x, high_threshold, low_threshold, visited);
+
+			if (gradient_neighbor >= low_threshold) {
+				dfs(canny_mask, gradient, y + step_y, x + step_x, low_threshold, visited);
 			}
+			//cout << gradient_neighbor << " " << low_threshold << endl;
+			//cout << "Loop" << " " << y << " " << x << " " << y + step_y << " " << x + step_x << endl;
 		}
 	}
 }
@@ -217,25 +214,24 @@ Mat ImageOperator::HysteresisThresholding(const Mat &gradient, float high_thresh
 	int aWidth = gradient.cols;
 	Mat canny_mask = Mat::zeros(aHeight, aWidth, CV_8UC1);
 
-	for (int y = 0; y < aHeight; ++y)
-		for (int x = 0; x < aWidth; ++x)
-			canny_mask.at<uchar>(y, x) = 0;
-
 	for (int y = 0; y < aHeight; ++y) {
 		for (int x = 0; x < aWidth; ++x) {
-			if (gradient.at<uchar>(y, x) < low_threshold)
+			if (getValueOfMatrix(gradient, y, x) < low_threshold)
 				canny_mask.at<uchar>(y, x) = 0;
-			else if (gradient.at<uchar>(y, x) > high_threshold)
+			else if (getValueOfMatrix(gradient, y, x) > high_threshold)
 				canny_mask.at<uchar>(y, x) = 255;
 		}
 	}
 
 	vector<vector<bool>> visited(aHeight, vector<bool>(aWidth, false));
 
-	for (int y = 0; y < aHeight; ++y)
-		for (int x = 0; x < aWidth; ++x)
-			if (canny_mask.at<uchar>(y, x) == 255 && visited[y][x] == false)
-				dfs(canny_mask, gradient, y, x, high_threshold, low_threshold, visited);
+	for (int y = 0; y < aHeight; ++y){
+		for (int x = 0; x < aWidth; ++x){
+			if (canny_mask.at<uchar>(y, x) == 255 && visited[y][x] == false){
+				dfs(canny_mask, gradient, y, x, low_threshold, visited);
+			}
+		}
+	}
 
 	return canny_mask;
 }

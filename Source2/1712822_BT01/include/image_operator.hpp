@@ -47,7 +47,7 @@ private:
 	static Mat computeMagnitude(const Mat& a, const Mat& b);
 	static Mat computeDirection(const Mat& gx, const Mat &gy);
 	static void NonMaxSuppression(const Mat &direction, Mat &gradient);
-	static void dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float high_threshold, float low_threshold, vector<vector<bool>> &visited);
+	static void dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float low_threshold, vector<vector<bool>> &visited);
 	static Mat HysteresisThresholding(const Mat &gradient, float high_threshold, float low_threshold);
 
 };
