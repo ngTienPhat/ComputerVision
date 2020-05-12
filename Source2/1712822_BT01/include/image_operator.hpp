@@ -49,7 +49,8 @@ public:
 
 		for (int y = 0; y < aHeight; y++) {
 			for (int x = 0; x < aWidth; x++) {
-				double angle = atan2((double)gy.at<uchar>(y,x),(double) gx.at<uchar>(y, x)) * 180 / PI;
+				double angle = atan2((double)gy.at<uchar>(y,x)*1.0,(double) gx.at<uchar>(y, x)) * 180 / PI;
+				if (angle < 0) angle += 180;
 				if (angle <= 22.5)
 					angle = 0;
 				else if (angle <= 67.5)
@@ -60,8 +61,10 @@ public:
 					angle = 135;
 				else //angle > 157.5
 					angle = 0;
+				//cout << angle << " ";
 				result.at<uchar>(y, x) = angle; //0, 45, 90, 135
 			}
+			//cout << endl;
 		}
 		return result;
 	}
@@ -140,8 +143,8 @@ public:
 
 		for (int y = 0; y < aHeight; ++y) {
 			for (int x = 0; x < aWidth; ++x) {
-				if (gradient.at<uchar>(y, x) < low_threshold)
-					canny_mask.at<uchar>(y, x) = 0;
+				if (gradient.at<uchar>(y, x) >= low_threshold)
+					canny_mask.at<uchar>(y, x) = 255;
 				else if (gradient.at<uchar>(y, x) > high_threshold)
 					canny_mask.at<uchar>(y, x) = 255;
 			}

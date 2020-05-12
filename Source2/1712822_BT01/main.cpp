@@ -20,10 +20,10 @@ int main(){
 	
 	MyImage removeNoiseGrayscale(removeNoiseImage);
 
-    Mat imageGx = removeNoiseGrayscale.applyConv2d(prewittGx);
+    Mat imageGx = removeNoiseGrayscale.applyConv2d(sobelGx);
     MyImage::showImage(imageGx, "Sobel_Gx");
 
-	Mat imageGy = removeNoiseGrayscale.applyConv2d(prewittGy);
+	Mat imageGy = removeNoiseGrayscale.applyConv2d(sobelGy);
 	MyImage::showImage(imageGx, "Sobel_Gy");
 
 	Mat magnitude = ImageOperator::magnitude(imageGx, imageGy);
@@ -32,7 +32,7 @@ int main(){
 	Mat direction = ImageOperator::computeDirection(imageGx, imageGy);
 
 	ImageOperator::NonMaxSuppression(direction, magnitude);
-	Mat canny_result = ImageOperator::HysteresisThresholding(magnitude, 100, 10);
+	Mat canny_result = ImageOperator::HysteresisThresholding(magnitude, 100, 5);
 	MyImage::showImage(canny_result, "Canny");
 
     return 0;
