@@ -10,10 +10,12 @@ void test_edge_detection(string imageDir){
 	Mat removeNoiseImage = my_image.removeNoise(gaussianBlur5x5);
 
     //test Laplacian edge detection
-    // MyImage image1 = MyImage(removeNoiseImage);
-    // Mat laplacianResult = image1.applyEdgeDetection("laplacian");
-    // MyImage laplacian_image = MyImage(laplacianResult);
-    // laplacian_image.showImage("laplacian result");
+    MyImage image1 = MyImage(removeNoiseImage);
+    image1.showImage("after blur [float]");
+
+    Mat laplacianResult = image1.applyEdgeDetection("laplacian");
+    MyImage laplacian_image = MyImage(laplacianResult);
+    laplacian_image.showImage("laplacian result");
 
 
     //test Canny edge detection

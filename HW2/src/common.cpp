@@ -23,3 +23,24 @@ void printMatrixInfo(const Mat &source){
 
     cout << printOut << " " << source.rows << "x" << source.cols << endl;
 }
+
+float getValueOfMatrix(const Mat &source, int y, int x){
+    int typeMatrix = source.type();
+    uchar depth = typeMatrix & CV_MAT_DEPTH_MASK;
+
+    switch(depth){
+        //case CV_8U:  return (float)source.at<uchar>(y, x);
+        case CV_32F: return source.at<float>(y, x);
+        default:     return (float)source.at<uchar>(y, x);
+    }
+}
+
+void setValueOfMatrix(Mat &source, int y, int x, float value){
+    int typeMatrix = source.type();
+    uchar depth = typeMatrix & CV_MAT_DEPTH_MASK;
+
+    switch(depth){
+        case CV_32F: source.at<float>(y, x) = value; break;
+        default:     source.at<uchar>(y, x) = (uchar)value; break;
+    }
+}

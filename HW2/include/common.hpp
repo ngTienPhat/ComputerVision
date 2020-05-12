@@ -13,4 +13,7 @@ using namespace cv;
 
 void printMatrixInfo(const Mat &source);
 
+float getValueOfMatrix(const Mat &source, int y, int x);
+void setValueOfMatrix(Mat &source, int y, int x, float value);
+
 #endif //COMMON_HPP__

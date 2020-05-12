@@ -34,7 +34,7 @@ public:
 private:
     // ---------------------------------------------------------------------------------------------------
     // Conv2D helper functions
-    static int applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel, bool useFloat=false);
+    static float applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel, bool useFloat=false);
 
     // ---------------------------------------------------------------------------------------------------
     // Laplacian helper functions

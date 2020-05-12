@@ -44,29 +44,25 @@ Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, bool useFloat, b
     int sHeight = source.rows;
     int sWidth= source.cols;
 
-    Mat cloneSource = source.clone();
-    if (useFloat == true){
-        source.convertTo(cloneSource, CV_32FC1);
+    Mat result = source.clone();
+    if (useFloat==true){
+        source.convertTo(result, CV_32FC1);
     }
-    Mat result = cloneSource.clone();
-
-    //Mat sClone = Mat(sHeight, sWidth, CV_32FC1 , Scalar(0.0));
 
     for(int y = 0; y < sHeight; y++){
         for(int x = 0; x < sWidth; x++){
-            int res = applyConvolutionAtPosition(cloneSource, x, y, kernel, useFloat);
+            float res = applyConvolutionAtPosition(source, x, y, kernel, useFloat);
             res = res > 255 ? 255 : res;
             if (acceptNegative == false){
                 res = res < 0 ? 0 : res; 
             }
-
-            if (useFloat){
-                result.at<float>(y, x) = res;   
-            }
-            else{
-                result.at<uchar>(y, x) = res;
-            }
-            
+            setValueOfMatrix(result, y, x, res);
+            // if (useFloat){
+            //     result.at<float>(y, x) = res;   
+            // }
+            // else{
+            //     result.at<uchar>(y, x) = res;
+            // }
         }
     }
     return result;
@@ -90,7 +86,7 @@ Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, string padding, 
     return sClone;
 }
 
-int ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel, bool useFloat){
+float ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel, bool useFloat){
     int sWidth = source.cols;
     int sHeight = source.rows;
 
@@ -103,6 +99,7 @@ int ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, c
     int convResult_int = 0;
     float convResult_float = 0;
 
+    
     for(int ky = 0; ky < kHeight; ++ky){
         int sourceY = startSourceY - ky;
 
@@ -113,14 +110,13 @@ int ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, c
                 continue;
 
             if (useFloat == false)
-                convResult_int += (int)source.at<uchar>(sourceY, sourceX) * kernel.at<int>(ky, kx);
+                convResult_int += getValueOfMatrix(source, sourceY, sourceX) * kernel.at<int>(ky, kx);
             else
-                convResult_float += 1.0*source.at<uchar>(sourceY, sourceX) * kernel.at<float>(ky, kx);
+                convResult_float += getValueOfMatrix(source, sourceY, sourceX) * kernel.at<float>(ky, kx);
         }
     }
     return (useFloat==true)? convResult_float:convResult_int;
 }
-
 
 Mat ImageOperator::addMatAbs(const Mat& a, const Mat& b){
     Mat result = a.clone();
