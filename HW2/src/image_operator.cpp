@@ -29,11 +29,14 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage){
     int maxValue = ImageOperator::getMaxValue(laplacianImage);
 
     // define slope threshold
-    float slopeThres = maxValue*0.2;
+    float slopeThres = maxValue*0.1;
 
+    cout <<"Laplacian Matrix: ";
+    printMatrixInfo(laplacianImage);
     // find zero crossing points in laplacian matrix
     Mat zeroCrossingResultImage = ImageOperator::findZeroCrossingPoints(laplacianImage, slopeThres);
 
+    cout <<"Zero crossing Matrix: "; printMatrixInfo(zeroCrossingResultImage);
     return zeroCrossingResultImage;
 }
 
@@ -57,17 +60,10 @@ Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, bool useFloat, b
                 res = res < 0 ? 0 : res; 
             }
             setValueOfMatrix(result, y, x, res);
-            // if (useFloat){
-            //     result.at<float>(y, x) = res;   
-            // }
-            // else{
-            //     result.at<uchar>(y, x) = res;
-            // }
         }
     }
     return result;
 }
-
 Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, string padding, int stride, bool useFloat){
     int sHeight = source.rows;
     int sWidth= source.cols;
@@ -85,7 +81,6 @@ Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, string padding, 
     }
     return sClone;
 }
-
 float ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel, bool useFloat){
     int sWidth = source.cols;
     int sHeight = source.rows;
@@ -117,7 +112,6 @@ float ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y,
     }
     return (useFloat==true)? convResult_float:convResult_int;
 }
-
 Mat ImageOperator::addMatAbs(const Mat& a, const Mat& b){
     Mat result = a.clone();
     int aHeight = a.rows;
@@ -267,8 +261,6 @@ Mat ImageOperator::HysteresisThresholding(const Mat &gradient, double high_thres
     return canny_mask;
 }
 
-
-
 // ---------------------------------------------------------------------------------------------------
 // Laplacian helper functions
 int ImageOperator::getMaxValue(const Mat& source){
@@ -294,29 +286,32 @@ Mat ImageOperator::findZeroCrossingPoints(const Mat& source, float slopeThres){
 
     for(int y = 0; y < sHeight; y++){
         for(int x = 0; x < sWidth; x++){
-            checkNonZeroBetween(source, result, y, x, slopeThres);
-            checkZeroBetween(source, result, y, x, slopeThres);
+            if (getValueOfMatrix(source, y, x) == 0)
+                checkZeroBetween(source, result, y, x, slopeThres);
+            else
+                checkNonZeroBetween(source, result, y, x, slopeThres);
+            
         }
     }
 
     return result;
 }
 void ImageOperator::checkNonZeroBetween(const Mat& source, Mat& result, int y, int x, float slopeThres){
-    float currentPoint = source.at<float>(y, x);
+    float currentPoint = getValueOfMatrix(source, y, x);// source.at<float>(y, x);
     
     // check rightward
     if (x <= source.cols-1){
-        float rightPoint = source.at<float>(y, x + 1);
+        float rightPoint = getValueOfMatrix(source, y, x+1);//source.at<float>(y, x + 1);
         if (checkEdgePointCondition(currentPoint, rightPoint, slopeThres)){
-            result.at<uchar>(y, x) = 255;
+            setValueOfMatrix(result, y, x, 255);
         }
     }
     
     //check downward
     if (y <= source.rows-1){
-        float downPoint = source.at<float>(y + 1, x);
+        float downPoint = getValueOfMatrix(source, y+1, x);
         if (checkEdgePointCondition(currentPoint, downPoint, slopeThres)){
-            result.at<uchar>(y, x) = 255;
+            setValueOfMatrix(result, y, x, 255);
         }
     }
     
@@ -337,11 +332,11 @@ void ImageOperator::checkZeroBetween(const Mat& source, Mat& result, int y, int 
             continue;
         }
 
-        float neighbor1 = source.at<float>(y1, x1);
-        float neighbor2 = source.at<float>(y2, x2);
+        float neighbor1 = getValueOfMatrix(source, y1, x1);
+        float neighbor2 = getValueOfMatrix(source, y2, x2);
         
         if (checkEdgePointCondition(neighbor1, neighbor2, slopeThres)){
-            result.at<uchar>(y, x) = 255;
+            setValueOfMatrix(result, y, x, 255);
         }
     }
 }

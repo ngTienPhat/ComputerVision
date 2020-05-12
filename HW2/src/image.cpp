@@ -12,15 +12,11 @@ MyImage::MyImage(const Mat &image) {
 	// 	<< this->image.cols << "," << this->image.channels() << ")\n";
 }
 
-// Image::Image(string imageDir){
-//     this->image = imread(imageDir, IMREAD_GRAYSCALE);
-// }
 
 void MyImage::showImage(string windowName, int windowSize){
     namedWindow(windowName, windowSize);
     Mat printedMatrix;
     this->image.convertTo(printedMatrix, CV_8UC1);
-    //imshow(windowName, printedMatrix);
     imshow(windowName, printedMatrix);
     waitKey(0);
 }

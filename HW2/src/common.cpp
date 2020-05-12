@@ -29,7 +29,6 @@ float getValueOfMatrix(const Mat &source, int y, int x){
     uchar depth = typeMatrix & CV_MAT_DEPTH_MASK;
 
     switch(depth){
-        //case CV_8U:  return (float)source.at<uchar>(y, x);
         case CV_32F: return source.at<float>(y, x);
         default:     return (float)source.at<uchar>(y, x);
     }
