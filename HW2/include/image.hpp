@@ -23,7 +23,7 @@ public:
     Mat applyEdgeDetection(string method);
 
 // STATIC METHODS
-    static void showImageFromMatrix(const Mat& imageMat, string windowName="image");
+    static void showImageFromMatrix(const Mat& imageMat, string windowName="image", int moveX=0, int moveY=0);
 };
 
 #endif //MY_IMAGE_HPP__

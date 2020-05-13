@@ -1,6 +1,4 @@
-#include "image.hpp"
-#include "image_operator.hpp"
-#include "kernel_generator.hpp"
+#include "command_handler.hpp"
 
 void test_edge_detection(string imageDir) {
 	// remove noise
@@ -33,10 +31,13 @@ void test_edge_detection(string imageDir) {
 	canny_image.showImage("canny result");
 }
 
-int main() {
-    string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
-	string image_dir = data_dir+"/lena.jpg";
-	test_edge_detection(image_dir);
+int main(int argc, char** argv) {
+    //string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
+	//string image_dir = data_dir+"/lena.jpg";
+    cout << argc << endl;
+
+	CommandHandler executor = CommandHandler(argc, argv);
+    executor.execute();
 
 	return 0;
 }

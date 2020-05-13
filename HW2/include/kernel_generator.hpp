@@ -4,7 +4,8 @@
 #include "common.hpp"
 
 class KernelGenerator{
-
+public:
+	static const float pi;
 
 public:
 	static Mat getGaussianBlur3x3() {
@@ -48,6 +49,29 @@ public:
 			                     -1, 4, -1, 
 			                      0, -1, 0);
     }
+
+	static Mat createGaussianKernel(int gaussSize, float gaussStd){
+		Mat gaussKernel = Mat::zeros(gaussSize, gaussSize, CV_32FC1);
+		float sum = 0.0;
+		float var = 2*gaussStd*gaussStd;
+		float r;
+		
+		for(int y = -(gaussSize/2); y <= gaussSize/2 ; y++){
+			for(int x = -(gaussSize/2); x <= gaussSize/2; x++){
+				r = sqrt(x*x + y*y);
+				gaussKernel.at<float>(y + gaussSize/2, x + gaussSize/2) = exp(-(r*r)/var) / (pi*var);
+				sum += gaussKernel.at<float>(y + gaussSize/2, x + gaussSize/2);
+			}
+		}
+
+		for(int i = 0; i < gaussSize; i++){
+			for(int j = 0; j < gaussSize; j++){
+				gaussKernel.at<float>(i, j)/=sum;
+			}
+		}
+
+		return gaussKernel;
+	}
 
 };
 

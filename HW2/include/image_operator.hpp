@@ -12,16 +12,16 @@ class ImageOperator {
 public:
 
 	// Sobel edge detection
-
+    static Mat EdgeDetectSobel(const Mat& sourceImage, bool isShowGx=true, bool isShowGy=true);
 
 	// Prewitt edge detection 
-
+    static Mat EdgeDetectPrewitt(const Mat& sourceImage, bool isShowGx=true, bool isShowGy=true);
 
 	// Laplacian edge detection
-	static Mat EdgeDetectLaplacian(const Mat& sourceImage);
+	static Mat EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, bool isShow=true);
 
 	// Canny edge detection
-	static Mat EdgeDetectCanny(const Mat& sourceIamge);
+	static Mat EdgeDetectCanny(const Mat& sourceIamge, int gaussSize=5, float gaussStd=1.0, bool isShow=true);
 
 	// CONVOLUTION 2D Version 2
 	static Mat conv2d(const Mat& source, const Mat& kernel, bool acceptNegative = false, bool acceptExceed = false);

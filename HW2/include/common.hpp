@@ -15,5 +15,6 @@ void printMatrixInfo(const Mat &source);
 
 float getValueOfMatrix(const Mat &source, int y, int x);
 void setValueOfMatrix(Mat &source, int y, int x, float value);
+Mat addMatrix(const Mat& a, const Mat& b);
 
 #endif //COMMON_HPP__

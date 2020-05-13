@@ -1,12 +1,56 @@
 #include "image_operator.hpp"
 
-Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage) {
+Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, bool isShowGx, bool isShowGy){
+    Mat sobelGx = KernelGenerator::getSobelKernelGx();
+    Mat imageGx = conv2d(sourceImage, sobelGx, false, false);
+
+    Mat sobelGy = KernelGenerator::getSobelKernelGy();
+    Mat imageGy = conv2d(sourceImage, sobelGy, false, false);
+    
+    MyImage::showImageFromMatrix(sourceImage, "Input");
+    if (isShowGx)
+        MyImage::showImageFromMatrix(imageGx, "Sobel Gx", 200, 0);
+
+    if (isShowGy)
+        MyImage::showImageFromMatrix(imageGy, "Sobel Gy", 400, 0);
+
+    Mat sobelResult= addMatrix(imageGx, imageGy);
+    MyImage::showImageFromMatrix(sobelResult, "Sobel result", 600, 0);
+    return sobelResult;
+}
+
+Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, bool isShowGx, bool isShowGy){
+    Mat prewittGx = KernelGenerator::getPrewittKernelGx();
+    Mat imageGx = conv2d(sourceImage, prewittGx, false, false);
+
+    Mat prewittGy = KernelGenerator::getPrewittKernelGy();
+    Mat imageGy = conv2d(sourceImage, prewittGy, false, false);
+
+    MyImage::showImageFromMatrix(sourceImage, "Input");
+    if (isShowGx)
+        MyImage::showImageFromMatrix(imageGx, "Prewitt Gx", 200, 0);
+
+    if (isShowGy)
+        MyImage::showImageFromMatrix(imageGy, "Prewitt Gy", 400, 0);
+
+    Mat prewittResult= addMatrix(imageGx, imageGy);
+    MyImage::showImageFromMatrix(prewittResult, "Prewitt result", 600, 0);
+    
+    return prewittResult;
+}
+
+Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow) {
 	MyImage image(sourceImage);
+	// remove noise image
+	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
+	Mat cleanedImage = image.removeNoise(gaussianMask);
+	
+
 	Mat imageGx, imageGy, magnitude = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_32FC1);
 	Mat direction, canny_result = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_8UC1);
 
-	imageGx = ImageOperator::conv2d(sourceImage, KernelGenerator::getSobelKernelGx(), true, true);
-	imageGy = ImageOperator::conv2d(sourceImage, KernelGenerator::getSobelKernelGy(), true, true);
+	imageGx = ImageOperator::conv2d(cleanedImage, KernelGenerator::getSobelKernelGx(), true, true);
+	imageGy = ImageOperator::conv2d(cleanedImage, KernelGenerator::getSobelKernelGy(), true, true);
 
 	//MyImage gx(imageGx), gy(imageGy);
 	//gx.showImage("gx"); gy.showImage("gy");
@@ -23,15 +67,27 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage) {
 	NonMaxSuppression(direction, magnitude);
 
 	canny_result = HysteresisThresholding(magnitude, 50, 10);
+
+    if (isShow){
+        MyImage::showImageFromMatrix(sourceImage, "Input image", 0, 0);
+        MyImage::showImageFromMatrix(canny_result, "Canny result", sourceImage.cols, 0);
+		MyImage::showImageFromMatrix(cleanedImage, "blur", 0, sourceImage.rows);
+    }
 	return canny_result;
 }
 
-Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage) {
+Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow) {
+	MyImage image(sourceImage);
+
+	// remove noise image
+	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
+	Mat cleanedImage = image.removeNoise(gaussianMask);
+	
 	// get Laplacian kernel
 	Mat laplaceKernel = KernelGenerator::getLaplaceKernel();
 
 	// use laplaceKernel to compute Laplacian gradient of source image
-	Mat laplacianImage = ImageOperator::conv2d(sourceImage, laplaceKernel, true, true);
+	Mat laplacianImage = ImageOperator::conv2d(cleanedImage, laplaceKernel, true, true);
 	
 	//cout << laplacianImage << endl;
 
@@ -44,9 +100,14 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage) {
 	// find zero crossing points in laplacian matrix
 	Mat zeroCrossingResultImage = ImageOperator::findZeroCrossingPoints(laplacianImage, slopeThres);
 
+    if (isShow){
+        MyImage::showImageFromMatrix(sourceImage, "input image", 0, 0);
+        MyImage::showImageFromMatrix(zeroCrossingResultImage, "Laplacian result", sourceImage.cols, 0);
+		MyImage::showImageFromMatrix(cleanedImage, "blur", 0, sourceImage.rows);
+    }
+    
 	return zeroCrossingResultImage;
 }
-
 
 // ---------------------------------------------------------------------------------------------------
 // Common helper functions
@@ -118,7 +179,7 @@ Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 	int aWidth = gx.cols;
 	Mat result = Mat::zeros(aHeight, aWidth, CV_8UC1);
 
-	float PI = 3.14159265;
+	float PI = KernelGenerator::pi;
 
 	for (int y = 0; y < aHeight; y++) {
 		for (int x = 0; x < aWidth; x++) {
