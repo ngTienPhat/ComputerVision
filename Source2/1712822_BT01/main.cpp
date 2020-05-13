@@ -3,6 +3,7 @@
 #include "kernel_generator.hpp"
 
 void test_edge_detection(string imageDir) {
+	/*
 	// remove noise
 	MyImage my_image = MyImage(imageDir, IMREAD_GRAYSCALE);
 	Mat gaussianBlur3x3 = KernelGenerator::getGaussianBlur3x3();
@@ -25,11 +26,12 @@ void test_edge_detection(string imageDir) {
 	printMatrixInfo(cannyResult);
 	MyImage canny_image = MyImage(cannyResult);
 	canny_image.showImage("canny result");
+	*/
 }
 
 int main() {
-	string image_dir = "lena.png";
-	test_edge_detection(image_dir);
+	//string image_dir = "lena.png";
+	//test_edge_detection(image_dir);
 
 	return 0;
 }

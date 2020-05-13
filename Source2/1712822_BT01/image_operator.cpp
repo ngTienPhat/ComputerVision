@@ -18,8 +18,8 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage) {
 
 	direction = computeDirection(imageGx, imageGy);
 
-	MyImage dirt(direction);
-	dirt.showImage("direction");
+	//MyImage dirt(direction);
+	//dirt.showImage("direction");
 
 	NonMaxSuppression(direction, magnitude);
 
@@ -108,7 +108,7 @@ Mat ImageOperator::computeMagnitude(const Mat& a, const Mat& b) {
 		for (int x = 0; x < aWidth; x++) {
 			float value_a = getValueOfMatrix(a, y, x);
 			float value_b = getValueOfMatrix(b, y, x);
-			float sum = sqrt(value_a * value_a + value_b * value_b);			
+			float sum = sqrt(value_a * value_a + value_b * value_b);
 			setValueOfMatrix(result, y, x, sum);
 		}
 	}
@@ -126,7 +126,6 @@ Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 			float value_gy = getValueOfMatrix(gy, y, x), value_gx = getValueOfMatrix(gx, y, x);
 			int angle = (int)(atan2(value_gy, value_gx) * 180 / PI);
 			if (angle < 0) angle += 180;
-			cout << angle << " ";
 			if (angle <= 22.5)
 				angle = 0;
 			else if (angle <= 67.5)
@@ -139,7 +138,6 @@ Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 				angle = 0;
 			setValueOfMatrix(result, y, x, angle); //0, 45, 90, 135
 		}
-		cout << endl;
 	}
 	return result;
 }
@@ -203,7 +201,6 @@ void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, floa
 			if (gradient_neighbor >= low_threshold) {
 				dfs(canny_mask, gradient, y + step_y, x + step_x, low_threshold, visited);
 			}
-			//cout << gradient_neighbor << " " << low_threshold << endl;
 			//cout << "Loop" << " " << y << " " << x << " " << y + step_y << " " << x + step_x << endl;
 		}
 	}
