@@ -15,9 +15,14 @@ void CommandHandler::execute(){
         printPatternCommands();
         return;
     }
-
+    
     string exeCommand = argv[2];
     string imgDir = argv[1];
+
+    if (exeCommand == "--help"){
+        printPatternCommands();
+        return;
+    }
 
     if (exeCommand == "detect_sobel"){
         executeSobelAlgorithm(imgDir);
@@ -44,11 +49,18 @@ void CommandHandler::executeAndTest(){
 // Execute Algorithm given image dir
 void CommandHandler::executeSobelAlgorithm(string imageDir){
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
-    Mat result = ImageOperator::EdgeDetectSobel(inputImage.getData(), true, true);
+
+    int gaussSize = stoi(argv[3]);
+    float gaussStd = stof(argv[4]);
+
+    Mat result = ImageOperator::EdgeDetectSobel(inputImage.getData(), gaussSize, gaussStd, true);
 }
 void CommandHandler::executePrewittlAlgorithm(string imageDir){
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
-    Mat result = ImageOperator::EdgeDetectPrewitt(inputImage.getData(), true, true);
+
+    int gaussSize = stoi(argv[3]);
+    float gaussStd = stof(argv[4]);
+    Mat result = ImageOperator::EdgeDetectPrewitt(inputImage.getData(), gaussSize, gaussStd, true);
 }
 void CommandHandler::executeLaplacianAlgorithm(string imageDir){
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
@@ -85,10 +97,8 @@ void CommandHandler::initPatternCommands(){
 void CommandHandler::printPatternCommands(){
     cout << "valid commands: " << endl;
     for(int i = 0; i < patternCommands.size(); i++){
-        cout << i+1 << ". " << patternCommands[i];
-        if (patternCommands[i] == "detect_laplacian" || patternCommands[i] == "detect_canny"){
-            cout << " <gauss size [int]>" << "<gauss std [float]>";
-        }
+        cout << i+1 << ".  " << patternCommands[i];
+        cout << " <gauss_size:[int]>" << "  <gauss_std:[float]>";
         cout << endl;
     }
 }

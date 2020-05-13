@@ -1,41 +1,54 @@
 #include "image_operator.hpp"
 
-Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, bool isShowGx, bool isShowGy){
-    Mat sobelGx = KernelGenerator::getSobelKernelGx();
-    Mat imageGx = conv2d(sourceImage, sobelGx, false, false);
+Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow){
+    MyImage image(sourceImage);
+	// remove noise image
+	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
+	Mat cleanedImage = image.removeNoise(gaussianMask);
+
+	
+	Mat sobelGx = KernelGenerator::getSobelKernelGx();
+    Mat imageGx = conv2d(cleanedImage, sobelGx, false, false);
 
     Mat sobelGy = KernelGenerator::getSobelKernelGy();
-    Mat imageGy = conv2d(sourceImage, sobelGy, false, false);
+    Mat imageGy = conv2d(cleanedImage, sobelGy, false, false);
     
-    MyImage::showImageFromMatrix(sourceImage, "Input");
-    if (isShowGx)
-        MyImage::showImageFromMatrix(imageGx, "Sobel Gx", 200, 0);
-
-    if (isShowGy)
-        MyImage::showImageFromMatrix(imageGy, "Sobel Gy", 400, 0);
-
     Mat sobelResult= addMatrix(imageGx, imageGy);
-    MyImage::showImageFromMatrix(sobelResult, "Sobel result", 600, 0);
+    
+	if (isShow){
+		MyImage::showImageFromMatrix(sourceImage, "Input");
+		MyImage::showImageFromMatrix(cleanedImage, "Blur", 0, sourceImage.rows+20);
+		MyImage::showImageFromMatrix(imageGx, "Sobel Gx", sourceImage.cols, 0);
+		MyImage::showImageFromMatrix(imageGy, "Sobel Gy", sourceImage.cols*2, 0);
+		MyImage::showImageFromMatrix(sobelResult, "Sobel result", sourceImage.cols, sourceImage.rows+20);
+	}
+
     return sobelResult;
 }
 
-Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, bool isShowGx, bool isShowGy){
+Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow){
+	MyImage image(sourceImage);
+	// remove noise image
+	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
+	Mat cleanedImage = image.removeNoise(gaussianMask);
+
     Mat prewittGx = KernelGenerator::getPrewittKernelGx();
-    Mat imageGx = conv2d(sourceImage, prewittGx, false, false);
+    Mat imageGx = conv2d(cleanedImage, prewittGx, false, false);
 
     Mat prewittGy = KernelGenerator::getPrewittKernelGy();
-    Mat imageGy = conv2d(sourceImage, prewittGy, false, false);
-
-    MyImage::showImageFromMatrix(sourceImage, "Input");
-    if (isShowGx)
-        MyImage::showImageFromMatrix(imageGx, "Prewitt Gx", 200, 0);
-
-    if (isShowGy)
-        MyImage::showImageFromMatrix(imageGy, "Prewitt Gy", 400, 0);
+    Mat imageGy = conv2d(cleanedImage, prewittGy, false, false);
 
     Mat prewittResult= addMatrix(imageGx, imageGy);
-    MyImage::showImageFromMatrix(prewittResult, "Prewitt result", 600, 0);
     
+	
+	if (isShow){
+		MyImage::showImageFromMatrix(sourceImage, "Input");
+		MyImage::showImageFromMatrix(cleanedImage, "Blur", 0, sourceImage.rows+20);
+		MyImage::showImageFromMatrix(imageGx, "Prewitt Gx", sourceImage.cols, 0);
+		MyImage::showImageFromMatrix(imageGy, "Prewitt Gy", sourceImage.cols*2, 0);
+		MyImage::showImageFromMatrix(prewittResult, "Prewitt result", sourceImage.cols, sourceImage.rows+20);
+	}
+
     return prewittResult;
 }
 
@@ -71,7 +84,7 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
     if (isShow){
         MyImage::showImageFromMatrix(sourceImage, "Input image", 0, 0);
         MyImage::showImageFromMatrix(canny_result, "Canny result", sourceImage.cols, 0);
-		MyImage::showImageFromMatrix(cleanedImage, "blur", 0, sourceImage.rows);
+		MyImage::showImageFromMatrix(cleanedImage, "blur", 0, sourceImage.rows+20);
     }
 	return canny_result;
 }
@@ -103,7 +116,7 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, fl
     if (isShow){
         MyImage::showImageFromMatrix(sourceImage, "input image", 0, 0);
         MyImage::showImageFromMatrix(zeroCrossingResultImage, "Laplacian result", sourceImage.cols, 0);
-		MyImage::showImageFromMatrix(cleanedImage, "blur", 0, sourceImage.rows);
+		MyImage::showImageFromMatrix(cleanedImage, "blur", 0, sourceImage.rows+20);
     }
     
 	return zeroCrossingResultImage;

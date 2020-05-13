@@ -12,10 +12,10 @@ class ImageOperator {
 public:
 
 	// Sobel edge detection
-    static Mat EdgeDetectSobel(const Mat& sourceImage, bool isShowGx=true, bool isShowGy=true);
+    static Mat EdgeDetectSobel(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, bool isShow=true);
 
 	// Prewitt edge detection 
-    static Mat EdgeDetectPrewitt(const Mat& sourceImage, bool isShowGx=true, bool isShowGy=true);
+    static Mat EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, bool isShow=true);
 
 	// Laplacian edge detection
 	static Mat EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, bool isShow=true);
