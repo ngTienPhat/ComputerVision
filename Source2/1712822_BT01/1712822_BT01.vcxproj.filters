@@ -47,7 +47,7 @@
     <ClInclude Include="include\kernel_generator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="image_operator_opencv.hpp">
+    <ClInclude Include="include\image_operator_opencv.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
