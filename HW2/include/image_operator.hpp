@@ -34,7 +34,7 @@ private:
 
 	// ---------------------------------------------------------------------------------------------------
 	// Laplacian helper functions
-	static int getLaplacianThreshold();
+	//static int getLaplacianThreshold();
 	static int getMaxValue(const Mat& source);
 
 	static Mat findZeroCrossingPoints(const Mat& source, float slopeThres);

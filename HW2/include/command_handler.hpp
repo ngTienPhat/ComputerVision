@@ -6,7 +6,7 @@
 #include "image_operator.hpp"
 #include "kernel_generator.hpp"
 #include "image_operator_opencv.hpp"
-#include <filesystem>
+//#include <filesystem>
 
 class CommandHandler{
 private:
@@ -17,11 +17,10 @@ private:
     vector<string> patternCommands;
 
 public:
-    CommandHandler();
+    //CommandHandler();
     CommandHandler(int argc, char** argv);
 
     void execute();
-    void executeAndTest(string dataDir, string saveDir);
 
 // HELPER FUNCTIONS
 private:
@@ -35,7 +34,7 @@ private:
     void printPatternCommands();
     bool isCommandInPattern(const string &checkCommand);
 
-    void testAllAlgorithmsOnSingleImage(string imageDir, string saveDir);
+    //void testAllAlgorithmsOnSingleImage(string imageDir, string saveDir);
     Mat executeAlgorithmWithGivenCommand(string imageDir, string commandName);
 };
 

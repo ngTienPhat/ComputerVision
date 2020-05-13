@@ -1,8 +1,6 @@
 #ifndef COMMON_HPP__
 #define COMMON_HPP__
 
-#include <sys/stat.h> 
-#include <sys/types.h> 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <iostream>

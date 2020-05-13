@@ -30,7 +30,7 @@ Mat opencvImageOperator::EdgeDetectSobel_opencv(const Mat& sourceImage, float th
 }
 
 // Laplacian edge detection
-Mat opencvImageOperator::EdgeDetectLaplacian_opencv(const Mat& sourceImage, int size_of_kernel_gaussian = 3, float signma = 1.0){
+Mat opencvImageOperator::EdgeDetectLaplacian_opencv(const Mat& sourceImage, int size_of_kernel_gaussian, float signma){
 	Mat src, src_gray, dst, result = sourceImage.clone();
 	int kernel_size = 3, scale = 1, delta = 0, ddepth = CV_16S;
 
@@ -45,7 +45,7 @@ Mat opencvImageOperator::EdgeDetectLaplacian_opencv(const Mat& sourceImage, int 
 }
 
 // Canny edge detection
-Mat opencvImageOperator::EdgeDetectCanny_opencv(const Mat& sourceImage, float low_threshold, float high_threshold, int size_of_kernel_gaussian = 3, float signma = 1.0){
+Mat opencvImageOperator::EdgeDetectCanny_opencv(const Mat& sourceImage, float low_threshold, float high_threshold, int size_of_kernel_gaussian, float signma){
 	Mat result = sourceImage.clone();
 
 	result = GaussianBlur_opencv(result, size_of_kernel_gaussian, signma);
