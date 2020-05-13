@@ -1,5 +1,7 @@
 #include "image.hpp"
 
+// -----------------------------------------------------
+// ------- CONSTRUCTOR ---------------------
 MyImage::MyImage(string imageDir, int loadType){
     this->image = imread(imageDir, loadType);
     cout << "image shape: (" << this->image.rows << "," 
@@ -12,6 +14,9 @@ MyImage::MyImage(const Mat &image) {
 	// 	<< this->image.cols << "," << this->image.channels() << ")\n";
 }
 
+
+// -----------------------------------------------------
+// ------- SHOW, SAVE, LOAD ---------------------
 
 void MyImage::showImage(string windowName, int windowSize){
     namedWindow(windowName, windowSize);
@@ -30,6 +35,20 @@ void MyImage::showImageFromMatrix(const Mat& imageMat, string windowName, int mo
     imshow(windowName, printedMatrix);
 }
 
+void MyImage::saveImage(string saveDir, string imageName){
+    string imageDir = saveDir+"/"+imageName+".jpg";
+    imwrite(imageDir, this->image);
+    cout << "save " << imageDir << endl;
+}
+
+void MyImage::saveImageFromMatrix(const Mat& imageMat, string saveDir, string imageName){
+    string imageDir = saveDir+"/"+imageName+".jpg";
+    imwrite(imageDir, imageMat);
+    cout << "save " << imageDir << endl;
+}
+
+// -----------------------------------------------------
+// ------- MODIFY ---------------------
 Mat MyImage::applyConv2d(const Mat& kernel){
     return ImageOperator::conv2d(this->image, kernel, true);
 }
