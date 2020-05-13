@@ -1,5 +1,18 @@
 #include "image_operator.hpp"
 
+int ImageOperator::measureDifference(const Mat &result, const Mat &ground_truth) {
+	if (result.rows != ground_truth.rows || result.cols != ground_truth.cols || result.channels() != ground_truth.channels())
+		return -1;
+	int diff = 0;
+	int height = ground_truth.rows, width = ground_truth.cols;
+	float eps = 1e-3;
+
+	for (int y = 0; y < height; ++y)
+		for (int x = 0; x < width; ++x)
+			diff += abs(getValueOfMatrix(result, y, x) - getValueOfMatrix(ground_truth, y, x)) > eps;
+	return diff;
+}
+
 Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage) {
 	MyImage image(sourceImage);
 	Mat imageGx, imageGy, magnitude = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_32FC1);
@@ -114,6 +127,7 @@ Mat ImageOperator::computeMagnitude(const Mat& a, const Mat& b) {
 	}
 	return result;
 }
+
 Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 	int aHeight = gx.rows;
 	int aWidth = gx.cols;
