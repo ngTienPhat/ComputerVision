@@ -29,44 +29,6 @@ void CommandHandler::execute(){
     waitKey(0);
 }
 
-/*
-Goal: Function to apply all edge detection algorithms on images located at dataDir
-
-Input: dataDir (string)
-*/
-void CommandHandler::executeAndTest(string dataDir, string saveDir){
-    vector<string> imageDirs;
-    // list dir in c++
-    for(const auto &entry : std::filesystem::directory_iterator(dataDir)){
-        testAllAlgorithmsOnSingleImage(entry.path(), saveDir);
-        //imageDirs.push_back(entry.path());
-    }
-
-}
-
-//Don;t use this command
-void CommandHandler::testAllAlgorithmsOnSingleImage(string imageDir, string saveDir){
-    string fileName = filesystem::path(imageDir).filename();
-    for(int i = 0; i < patternCommands.size(); i++){
-        string resultSaveDir = saveDir+"/"+patternCommands[i];
-        if (mkdir(resultSaveDir.c_str(), 0777) == -1) {
-            cout << "Error :  " << strerror(errno) << endl; 
-            return;
-        }
-        else
-            cout << "Directory created"; 
-        
-        //string myResultSaveDir = resultSaveDir+"/my_" + fileName;
-        //string opencvResultSaveDir = resultSaveDir+"/opencv_" + fileName;
-        
-        Mat myResult = executeAlgorithmWithGivenCommand(imageDir, patternCommands[i]);
-        MyImage::saveImageFromMatrix(myResult, resultSaveDir, "my_"+fileName);
-
-        //Mat opencvResult = 
-        //MyImage::saveImageFromMatrix(opencvResult, resultSaveDir, "opencv_"+fileName);
-    }
-}
-
 // --------------------------------------------------------
 // PRIVATE AREA
 
@@ -80,10 +42,9 @@ Mat CommandHandler::executeAlgorithmWithGivenCommand(string imageDir, string com
     else if (commandName == "detect_laplacian"){
         return executeLaplacianAlgorithm(imageDir);
     }
-    else if (commandName == "detect_canny"){
-        return executeCannyAlgorithm(imageDir);
-    }
+    return executeCannyAlgorithm(imageDir);
 }
+
 
 // Execute Algorithm given image dir
 Mat CommandHandler::executeSobelAlgorithm(string imageDir){
@@ -97,6 +58,7 @@ Mat CommandHandler::executeSobelAlgorithm(string imageDir){
     Mat result = ImageOperator::EdgeDetectSobel(inputImage.getData(), gaussSize, gaussStd, pixelThres, true);
     return result;
 }
+
 Mat CommandHandler::executePrewittlAlgorithm(string imageDir){
     cout << "Detecting edge with Prewitt algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
@@ -105,6 +67,8 @@ Mat CommandHandler::executePrewittlAlgorithm(string imageDir){
     float gaussStd = stof(argv[4]);
     int pixelThres = stoi(argv[5]);
     Mat result = ImageOperator::EdgeDetectPrewitt(inputImage.getData(), gaussSize, gaussStd, pixelThres, true);
+
+    return result;
 }
 Mat CommandHandler::executeLaplacianAlgorithm(string imageDir){
     cout << "Detecting edge with Laplacian algorithm..." << endl;
@@ -114,12 +78,12 @@ Mat CommandHandler::executeLaplacianAlgorithm(string imageDir){
     float gaussStd = stof(argv[4]);
     float thresPrecent = stof(argv[5]);
 
+    Mat result;
     if (thresPrecent > 1){
-        cout << "[ERROR]: threshold percent must be lower than 1" << endl;
-        return;
+        result = ImageOperator::EdgeDetectLaplacian(inputImage.getData(), gaussSize, gaussStd);
     }
-
-    Mat result = ImageOperator::EdgeDetectLaplacian(inputImage.getData(), gaussSize, gaussStd, thresPrecent);
+    else
+        result = ImageOperator::EdgeDetectLaplacian(inputImage.getData(), gaussSize, gaussStd, thresPrecent);
     return result;
 }
 Mat CommandHandler::executeCannyAlgorithm(string imageDir){
@@ -131,11 +95,13 @@ Mat CommandHandler::executeCannyAlgorithm(string imageDir){
     int lowThres = stoi(argv[5]);
     int hightThres = stoi(argv[6]);
 
+    Mat result;
     if (hightThres < lowThres){
-        cout << "ERROR]: high threshold must be higher than the lower one" << endl;
-        return;
+        result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd);
     }
-    Mat result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres);
+    else 
+        result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres);
+    
     return result;
 }
 
