@@ -52,7 +52,7 @@ Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, floa
     return prewittResult;
 }
 
-Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow) {
+Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float gaussStd, int low_thres, int high_thres, bool isShow) {
 	MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
@@ -79,7 +79,7 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 
 	NonMaxSuppression(direction, magnitude);
 
-	canny_result = HysteresisThresholding(magnitude, 50, 10);
+	canny_result = HysteresisThresholding(magnitude, high_thres, low_thres);
 
     if (isShow){
         MyImage::showImageFromMatrix(sourceImage, "Input image", 0, 0);
@@ -89,7 +89,7 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 	return canny_result;
 }
 
-Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow) {
+Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, float gaussStd, float thres, bool isShow) {
 	MyImage image(sourceImage);
 
 	// remove noise image
@@ -108,7 +108,7 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, fl
 	int maxValue = ImageOperator::getMaxValue(laplacianImage);
 	
 	// define slope threshold
-	float slopeThres = maxValue*0.1;
+	float slopeThres = maxValue*thres;
 
 	// find zero crossing points in laplacian matrix
 	Mat zeroCrossingResultImage = ImageOperator::findZeroCrossingPoints(laplacianImage, slopeThres);
