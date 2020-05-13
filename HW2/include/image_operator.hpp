@@ -6,8 +6,6 @@
 #include "kernel_generator.hpp"
 
 class ImageOperator {
-
-
 	// PUBLIC FUNCTIONS
 public:
 
