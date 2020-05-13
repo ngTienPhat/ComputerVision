@@ -1,6 +1,7 @@
 #include "image.hpp"
 #include "image_operator.hpp"
 #include "kernel_generator.hpp"
+#include "image_operator_opencv.hpp"
 
 void test_edge_detection(string imageDir) {
 	// remove noise

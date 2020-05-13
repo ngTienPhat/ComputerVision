@@ -26,6 +26,8 @@ public:
 	// CONVOLUTION 2D Version 2
 	static Mat conv2d(const Mat& source, const Mat& kernel, bool acceptNegative = false, bool acceptExceed = false);
 
+	// measure Difference between 2 Mat
+	static int measureDifference(const Mat &result, const Mat &ground_truth);
 	// PRIVATE FUNCTION:
 private:
 	// ---------------------------------------------------------------------------------------------------
