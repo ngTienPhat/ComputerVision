@@ -15,7 +15,8 @@ public:
 
 
     void showImage(string windowName="Display window", int windowSize=WINDOW_AUTOSIZE);
-    
+    void saveImage(string saveDir, string imageName);
+
     Mat applyConv2d(const Mat& kernel);
 	Mat removeNoise(const Mat& kernel);
     Mat getData();
@@ -23,7 +24,8 @@ public:
     Mat applyEdgeDetection(string method);
 
 // STATIC METHODS
-    static void showImageFromMatrix(const Mat& imageMat, string windowName="image");
+    static void showImageFromMatrix(const Mat& imageMat, string windowName="image", int moveX=0, int moveY=0);
+    static void saveImageFromMatrix(const Mat& imageMat, string saveDir, string imageName);
 };
 
 #endif //MY_IMAGE_HPP__

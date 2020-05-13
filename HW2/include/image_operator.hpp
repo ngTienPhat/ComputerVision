@@ -6,22 +6,20 @@
 #include "kernel_generator.hpp"
 
 class ImageOperator {
-
-
 	// PUBLIC FUNCTIONS
 public:
 
 	// Sobel edge detection
-
+    static Mat EdgeDetectSobel(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, int edge_thres=100, bool isShow=true);
 
 	// Prewitt edge detection 
-
+    static Mat EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, int edge_thres=100, bool isShow=true);
 
 	// Laplacian edge detection
-	static Mat EdgeDetectLaplacian(const Mat& sourceImage);
+	static Mat EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize=5, float gaussStd=1.0, float max_thres=0.2, bool isShow=true);
 
 	// Canny edge detection
-	static Mat EdgeDetectCanny(const Mat& sourceIamge);
+	static Mat EdgeDetectCanny(const Mat& sourceIamge, int gaussSize=5, float gaussStd=1.0, int low_thres=10, int high_thres=50, bool isShow=true);
 
 	// CONVOLUTION 2D Version 2
 	static Mat conv2d(const Mat& source, const Mat& kernel, bool acceptNegative = false, bool acceptExceed = false);
@@ -52,6 +50,10 @@ private:
 	static void dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float low_threshold, vector<vector<bool>> &visited);
 	static Mat HysteresisThresholding(const Mat &gradient, float high_threshold, float low_threshold);
 
+
+    // ---------------------------------------------------------------------------------------------------
+	// Refinement helper functions
+    static void maximizeEdgePixels(Mat& source, int thres);
 };
 
 #endif //IMAGE_OPERATOR_HPP__

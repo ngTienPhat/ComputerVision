@@ -44,3 +44,18 @@ void setValueOfMatrix(Mat &source, int y, int x, float value) {
 	default:     source.at<uchar>(y, x) = (uchar)value; break;
 	}
 }
+
+Mat addMatrix(const Mat& a, const Mat& b){
+    int height = a.rows;
+    int width = a.cols;
+
+    Mat result = a.clone();
+    for (int y = 0; y < height; y++){
+        for(int x = 0; x < width; x++){
+            int sum = (int)getValueOfMatrix(a, y, x) + (int)getValueOfMatrix(b, y, x);
+            sum = sum > 255 ? 255 : sum;
+            setValueOfMatrix(result, y, x, sum);
+        }
+    }   
+    return result;
+}

@@ -2,6 +2,7 @@
 #define IMAGE_OPERATOR_OPENCV_HPP__
 
 #include "common.hpp"
+#include "image.hpp"
 
 class opencvImageOperator {
 	// PUBLIC FUNCTIONS
