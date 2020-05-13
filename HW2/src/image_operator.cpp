@@ -1,6 +1,6 @@
 #include "image_operator.hpp"
 
-Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow){
+Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float gaussStd, int edge_thres, bool isShow){
     MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
@@ -14,7 +14,8 @@ Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float 
     Mat imageGy = conv2d(cleanedImage, sobelGy, false, false);
     
     Mat sobelResult= addMatrix(imageGx, imageGy);
-    
+	maximizeEdgePixels(sobelResult, edge_thres);
+
 	if (isShow){
 		MyImage::showImageFromMatrix(sourceImage, "Input");
 		MyImage::showImageFromMatrix(cleanedImage, "Blur", 0, sourceImage.rows+20);
@@ -26,7 +27,7 @@ Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float 
     return sobelResult;
 }
 
-Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, float gaussStd, bool isShow){
+Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, float gaussStd, int edge_thres, bool isShow){
 	MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
@@ -40,7 +41,7 @@ Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, floa
 
     Mat prewittResult= addMatrix(imageGx, imageGy);
     
-	
+	maximizeEdgePixels(prewittResult, edge_thres);
 	if (isShow){
 		MyImage::showImageFromMatrix(sourceImage, "Input");
 		MyImage::showImageFromMatrix(cleanedImage, "Blur", 0, sourceImage.rows+20);
@@ -65,13 +66,9 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 	imageGx = ImageOperator::conv2d(cleanedImage, KernelGenerator::getSobelKernelGx(), true, true);
 	imageGy = ImageOperator::conv2d(cleanedImage, KernelGenerator::getSobelKernelGy(), true, true);
 
-	//MyImage gx(imageGx), gy(imageGy);
-	//gx.showImage("gx"); gy.showImage("gy");
 
 	magnitude = computeMagnitude(imageGx, imageGy);
 
-	//MyImage grad(magnitude);
-	//grad.showImage("gradient");
 
 	direction = computeDirection(imageGx, imageGy);
 
@@ -89,7 +86,7 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 	return canny_result;
 }
 
-Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, float gaussStd, float thres, bool isShow) {
+Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, float gaussStd, float max_thres, bool isShow) {
 	MyImage image(sourceImage);
 
 	// remove noise image
@@ -108,11 +105,11 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, fl
 	int maxValue = ImageOperator::getMaxValue(laplacianImage);
 	
 	// define slope threshold
-	float slopeThres = maxValue*thres;
+	float slopeThres = maxValue*max_thres;
 
 	// find zero crossing points in laplacian matrix
 	Mat zeroCrossingResultImage = ImageOperator::findZeroCrossingPoints(laplacianImage, slopeThres);
-
+	
     if (isShow){
         MyImage::showImageFromMatrix(sourceImage, "input image", 0, 0);
         MyImage::showImageFromMatrix(zeroCrossingResultImage, "Laplacian result", sourceImage.cols, 0);
@@ -391,4 +388,22 @@ bool ImageOperator::checkEdgePointCondition(float point1, float point2, float sl
 	int sign1 = point1 < 0 ? -1 : 1;
 	int sign2 = point2 < 0 ? -1 : 1;
 	return (sign1 != sign2) && (abs(point1) + abs(point2) > slopeThres);
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Refinement helper functions
+void ImageOperator::maximizeEdgePixels(Mat& source, int thres){
+	int height = source.rows;
+	int width = source.cols;
+	for(int y = 0; y < height; y++){
+		for(int x = 0; x < width; x++){
+			if (getValueOfMatrix(source, y, x) > thres){
+				setValueOfMatrix(source, y, x, 255);
+			}
+			else{
+				setValueOfMatrix(source, y, x, 0);
+			}
+		}
+	}
+
 }

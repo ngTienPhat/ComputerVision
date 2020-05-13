@@ -34,7 +34,6 @@ void test_edge_detection(string imageDir) {
 int main(int argc, char** argv) {
     //string data_dir = "/Users/tienphat/Documents/HCMUS/Computer_Vision/ComputerVision/data";
 	//string image_dir = data_dir+"/lena.jpg";
-    cout << argc << endl;
 
 	CommandHandler executor = CommandHandler(argc, argv);
     executor.execute();

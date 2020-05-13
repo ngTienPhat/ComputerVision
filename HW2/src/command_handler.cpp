@@ -48,47 +48,53 @@ void CommandHandler::executeAndTest(){
 
 // Execute Algorithm given image dir
 void CommandHandler::executeSobelAlgorithm(string imageDir){
+    cout << "Detecting edge with Sobel algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
 
     int gaussSize = stoi(argv[3]);
     float gaussStd = stof(argv[4]);
+    int pixelThres = stoi(argv[5]);
 
-    Mat result = ImageOperator::EdgeDetectSobel(inputImage.getData(), gaussSize, gaussStd, true);
+    Mat result = ImageOperator::EdgeDetectSobel(inputImage.getData(), gaussSize, gaussStd, pixelThres, true);
 }
 void CommandHandler::executePrewittlAlgorithm(string imageDir){
+    cout << "Detecting edge with Prewitt algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
 
     int gaussSize = stoi(argv[3]);
     float gaussStd = stof(argv[4]);
-    Mat result = ImageOperator::EdgeDetectPrewitt(inputImage.getData(), gaussSize, gaussStd, true);
+    int pixelThres = stoi(argv[5]);
+    Mat result = ImageOperator::EdgeDetectPrewitt(inputImage.getData(), gaussSize, gaussStd, pixelThres, true);
 }
 void CommandHandler::executeLaplacianAlgorithm(string imageDir){
+    cout << "Detecting edge with Laplacian algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
 
     int gaussSize = stoi(argv[3]);
     float gaussStd = stof(argv[4]);
-    float thres_precent = stof(argv[5]);
+    float thresPrecent = stof(argv[5]);
 
-    if (thres_precent > 1){
+    if (thresPrecent > 1){
         cout << "[ERROR]: threshold percent must be lower than 1" << endl;
         return;
     }
 
-    Mat result = ImageOperator::EdgeDetectLaplacian(inputImage.getData(), gaussSize, gaussStd, thres_precent);
+    Mat result = ImageOperator::EdgeDetectLaplacian(inputImage.getData(), gaussSize, gaussStd, thresPrecent);
 }
 void CommandHandler::executeCannyAlgorithm(string imageDir){
+    cout << "Detecting edge with Canny algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
 
     int gaussSize = stoi(argv[3]);
     float gaussStd = stof(argv[4]);
-    int low_thres = stoi(argv[5]);
-    int hight_thres = stoi(argv[6]);
+    int lowThres = stoi(argv[5]);
+    int hightThres = stoi(argv[6]);
 
-    if (hight_thres < low_thres){
+    if (hightThres < lowThres){
         cout << "ERROR]: high threshold must be higher than the lower one" << endl;
         return;
     }
-    Mat result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, low_thres, hight_thres);
+    Mat result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres);
 }
 
 
@@ -110,14 +116,16 @@ void CommandHandler::initPatternCommands(){
 void CommandHandler::printPatternCommands(){
     cout << "valid commands: " << endl;
     for(int i = 0; i < patternCommands.size(); i++){
-        cout << i+1 << ".  " << patternCommands[i];
-        cout << " <gauss_size:[int]>" << "  <gauss_std:[float]>";
+        cout << i+1 << "." << patternCommands[i];
+        cout << " <gauss_size:[int]>" << " <gauss_std:[float]>";
         if (patternCommands[i] == "detect_laplacian"){
-            cout << "  <threshold:[float]>";
+            cout << " <threshold:[float]>";
         }
-        if (patternCommands[i] == "detect_canny"){
-            cout << "  <low_thres:[int]>" << "  <high_thres:[int]";
+        else if (patternCommands[i] == "detect_canny"){
+            cout << " <low_thres:[int]>" << " <high_thres:[int]>";
         }
+        else 
+            cout << " <edge_pixel_thres:[int]>";
         cout << endl;
     }
 }
