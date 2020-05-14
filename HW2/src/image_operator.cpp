@@ -1,6 +1,5 @@
 #include "image_operator.hpp"
 
-
 Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float gaussStd, int edge_thres, bool isShow){
     MyImage image(sourceImage);
 	// remove noise image

@@ -40,6 +40,7 @@ void CommandHandler::testAndSave(string saveDir){
     float gaussStd = stof(argv[4]);
     int lowThres = stoi(argv[5]);
     int hightThres = stoi(argv[6]);
+    int isPrint = stoi(argv[7]);
 
     MyImage sourceImage = MyImage(imgDir, IMREAD_GRAYSCALE);
     Mat opencvResult = opencvImageOperator::EdgeDetectCanny_opencv(sourceImage.getData(), lowThres, hightThres, gaussSize, gaussStd);
