@@ -1,11 +1,15 @@
 #include "image_operator.hpp"
 
 Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float gaussStd, int edge_thres, bool isShow){
+	/*
+	Input: SourceImage, SizeOfKernelGaussian, SignmaOfKernelGaussian, threshold, isShow (true if you want to show Edge Image).
+	Key task: Detect edge of SourceImage by Sobel Algorithm 
+	Output: Black & White Image containing edges  based on threshold provided.
+	*/
     MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
 	Mat cleanedImage = image.removeNoise(gaussianMask);
-
 	
 	Mat sobelGx = KernelGenerator::getSobelKernelGx();
     Mat imageGx = conv2d(cleanedImage, sobelGx, false, false);
@@ -28,6 +32,11 @@ Mat ImageOperator::EdgeDetectSobel(const Mat& sourceImage, int gaussSize, float 
 }
 
 Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, float gaussStd, int edge_thres, bool isShow){
+	/*
+	Input: SourceImage, SizeOfKernelGaussian, SignmaOfKernelGaussian, threshold, isShow (true if you want to show Edge Image).
+	Key task: Detect edge of SourceImage by Prewitt Algorithm
+	Output: Black & White Image containing edges  based on threshold provided.
+	*/
 	MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
@@ -54,6 +63,11 @@ Mat ImageOperator::EdgeDetectPrewitt(const Mat& sourceImage, int gaussSize, floa
 }
 
 Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float gaussStd, int low_thres, int high_thres, bool isShow) {
+	/*
+	Input: SourceImage, SizeOfKernelGaussian, SignmaOfKernelGaussian, low_threshold, high_threshold, isShow (true if you want to show Edge Image).
+	Key task: Detect edge of SourceImage by Canny Algorithm
+	Output: Black & White Image containing edges  based on low_threshold and high_threshold provided.
+	*/
 	MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
@@ -84,6 +98,11 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 }
 
 Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, float gaussStd, float max_thres, bool isShow) {
+	/*
+	Input: SourceImage, SizeOfKernelGaussian, SignmaOfKernelGaussian, max_threshold ([0,1], type: float), isShow (true if you want to show Edge Image).
+	Key task: Detect edge of SourceImage by Laplacian Algorithm
+	Output: Black & White Image containing edges  based on threshold provided.
+	*/
 	MyImage image(sourceImage);
 
 	// remove noise image
@@ -118,6 +137,11 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, fl
 
 
 int ImageOperator::measureDifference(const Mat &result, const Mat &ground_truth) {
+	/*
+	Input: ResultImage, GroundTruthImage
+	Key task: measure_difference of two images (pixel-wise)
+	Output: the number of diff betwwen 2 images.
+	*/
 	if (result.rows != ground_truth.rows || result.cols != ground_truth.cols || result.channels() != ground_truth.channels())
 		return -1;
 	// int height = ground_truth.rows, width = ground_truth.cols;
@@ -133,6 +157,11 @@ int ImageOperator::measureDifference(const Mat &result, const Mat &ground_truth)
 
 // calculate false positive edge points
 int ImageOperator::calculateFalsePositivePoints(const Mat& result, const Mat& groundTruth){
+	/*
+	Input: ResultImage, GroundTruthImage
+	Key task: measure FALSE POSITIVE Points comparing 2 images.
+	Output: FALSE POSITIVE Points
+	*/
 	int count= 0;
 	int height = result.rows;
 	int width = result.cols;
@@ -150,6 +179,11 @@ int ImageOperator::calculateFalsePositivePoints(const Mat& result, const Mat& gr
 	
 // calculate false negative edge points
 int ImageOperator::calculateFalseNegativePoints(const Mat& result, const Mat& groundTruth){
+	/*
+	Input: ResultImage, GroundTruthImage
+	Key task: measure FALSE NEGATIVE Points comparing 2 images.
+	Output: FALSE NEGATIVE Points
+	*/
 	int count= 0;
 	int height = result.rows;
 	int width = result.cols;
@@ -167,6 +201,11 @@ int ImageOperator::calculateFalseNegativePoints(const Mat& result, const Mat& gr
 
 // calculate true positive edge points
 int ImageOperator::calculateTruePositivePoints(const Mat& result, const Mat& groundTruth){
+	/*
+	Input: ResultImage, GroundTruthImage
+	Key task: measure TRUE POSITIVE Points comparing 2 images.
+	Output: TRUE POSITIVE Points
+	*/
 	int count= 0;
 	int height = result.rows;
 	int width = result.cols;
@@ -184,6 +223,11 @@ int ImageOperator::calculateTruePositivePoints(const Mat& result, const Mat& gro
 
 // calculate true negative edge points
 int ImageOperator::calculateTrueNegativePoints(const Mat& result, const Mat& groundTruth){
+	/*
+	Input: ResultImage, GroundTruthImage
+	Key task: measure TRUE NEGATIVE Points comparing 2 images.
+	Output: TRUE NEGATIVE Points
+	*/
 	int count= 0;
 	int height = result.rows;
 	int width = result.cols;
@@ -202,6 +246,11 @@ int ImageOperator::calculateTrueNegativePoints(const Mat& result, const Mat& gro
 // ---------------------------------------------------------------------------------------------------
 // Common helper functions
 Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, bool acceptNegative, bool acceptExceed) {
+	/*
+	Input: SourceImage, Kernel, acceptNegative (true if value of pixels can be negative), acceptExceed (true if value of pixels can exceed 255)
+	Key task: do the convolution operator of SourceImage with kernel provided.
+	Output: conv2d result Matrix
+	*/
 	int sHeight = source.rows;
 	int sWidth = source.cols;
 
@@ -221,6 +270,11 @@ Mat ImageOperator::conv2d(const Mat& source, const Mat& kernel, bool acceptNegat
 }
 
 float ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y, const Mat& kernel) {
+	/*
+	Input: SourceImage, Kernel, position_x_axis, position_y_axis
+	Key task: do the convolution operator of pixel[y][x] of SourceImage.
+	Output: conv2d result of the corresponding pixel.
+	*/
 	int sWidth = source.cols;
 	int sHeight = source.rows;
 
@@ -250,6 +304,11 @@ float ImageOperator::applyConvolutionAtPosition(const Mat& source, int x, int y,
 // ---------------------------------------------------------------------------------------------------
 // Laplacian helper functions
 int ImageOperator::getMaxValue(const Mat& source){
+	/*
+	Input: SourceImage.
+	Key task: get the Maximum Intensity of given Matrix.
+	Output: the Maximum Intensity of SourceImage.
+	*/
     int result = -1;
     // TODO: find max value of matrix source
     int sHeight = source.rows;
@@ -263,6 +322,13 @@ int ImageOperator::getMaxValue(const Mat& source){
     return result;
 }
 Mat ImageOperator::findZeroCrossingPoints(const Mat& source, float slopeThres){
+	/*
+	Input: SourceImage, slopeThreshold
+	Key task: find all zero crossing points [4 cases: (+, -), (+, 0, -), (-, +), (-, 0, +)] (prerequisite)
+			  if slope value of a zero crossing point: |a+b|>slopeThres then this point is belong to the edge of Source Image. (Requisite)
+			  (a, b are 2 opposite numbers).
+	Output: Black & White Image containing edges  based on threshold provided.
+	*/
     int sHeight = source.rows;
     int sWidth = source.cols;
     int dx[] = {-1, 0};
@@ -283,7 +349,16 @@ Mat ImageOperator::findZeroCrossingPoints(const Mat& source, float slopeThres){
     return result;
 }
 void ImageOperator::checkNonZeroBetween(const Mat& source, Mat& result, int y, int x, float slopeThres){
-    float currentPoint = getValueOfMatrix(source, y, x);// source.at<float>(y, x);
+	/*
+	Input: SourceImage, resultImage, position_x_axis, position_y_axis, slopeThreshold.
+	Key task: 
+	+	check if given Point(y,x) is zero crossing points at cases: (+, -), , (-, +) (prerequisite)
+	IF Point(y,x) is zero-crossing point then:	
+	+	if slope value of zero crossing point: |a+b|>slopeThres then this point is belong to the edge of Source Image. (Requisite)
+				(a, b are 2 opposite numbers).
+	*/
+
+	float currentPoint = getValueOfMatrix(source, y, x);// source.at<float>(y, x);
     
     // check rightward
     if (x <= source.cols-1){
@@ -303,7 +378,15 @@ void ImageOperator::checkNonZeroBetween(const Mat& source, Mat& result, int y, i
     
 }
 void ImageOperator::checkZeroBetween(const Mat& source, Mat& result, int y, int x, float slopeThres){
-    int dx[] = {-1, 0};
+	/*
+	Input: SourceImage, resultImage, position_x_axis, position_y_axis, slopeThreshold.
+	Key task:
+	+	check if given Point(y,x) is zero crossing points at cases: (+, 0, -), , (-, 0, +) (prerequisite)
+	IF Point(y,x) is zero-crossing point then:
+	+	if slope value of zero crossing point: |a+b|>slopeThres then this point is belong to the edge of Source Image. (Requisite)
+	(a, b are 2 opposite numbers).
+	*/
+	int dx[] = {-1, 0};
     int dy[] = {0, 1};
     
     //compute local variance
@@ -328,15 +411,26 @@ void ImageOperator::checkZeroBetween(const Mat& source, Mat& result, int y, int 
 }
 
 bool ImageOperator::checkEdgePointCondition(float point1, float point2, float slopeThres) {
+	/*
+	Input: Pointvalue1, Pointvalue2, slopeThreshold
+	Key task:
+		Return TRUE IF Point 1, 2 Values are opposite and |Point1+Point2| > slopeThresh,
+				FALSE otherwise.
+	*/
 	int sign1 = point1 < 0 ? -1 : 1;
 	int sign2 = point2 < 0 ? -1 : 1;
-	return (sign1 != sign2) && (abs(point1) + abs(point2) > slopeThres);
+	return (sign1 != sign2) && (abs(point1 + point2) > slopeThres);
 }
 
 
 // ---------------------------------------------------------------------------------------------------
 // Canny helper functions
 Mat ImageOperator::computeMagnitude(const Mat& a, const Mat& b) {
+	/*
+	Input: matrix_g_x, matrix_g_y
+	Key task: compute a new matrix containing Magnitude of G_x and G_y in each pixels (magnitude = sqrt(a*a+b*b)).
+	Output: Magnitude Matrix
+	*/
 	int aHeight = a.rows;
 	int aWidth = a.cols;
 	Mat result = Mat::zeros(aHeight, aWidth, CV_32FC1);
@@ -353,6 +447,11 @@ Mat ImageOperator::computeMagnitude(const Mat& a, const Mat& b) {
 }
 
 Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
+	/*
+	Input: matrix_g_x, matrix_g_y
+	Key task: compute a new matrix containing Direction of G_x and G_y in each pixels (direction = arctan(gy/gx)).
+	Output: Direction Matrix
+	*/
 	int aHeight = gx.rows;
 	int aWidth = gx.cols;
 	Mat result = Mat::zeros(aHeight, aWidth, CV_8UC1);
@@ -380,11 +479,19 @@ Mat ImageOperator::computeDirection(const Mat& gx, const Mat &gy) {
 	return result;
 }
 void ImageOperator::NonMaxSuppression(const Mat &direction, Mat &gradient) {
+	/*
+	Input: matrix_direction, matrix_gradient.
+	Key task: suppression all pixels that are not maximum to its direction (compare with its 2 neighbor points in direction 0, 45, 90, 135).
+				Set gradient value of all non-maximum point to 0.
+	*/
+
 	int aHeight = direction.rows;
 	int aWidth = direction.cols;
 	
 	int angle, compare = 0;
 	float current_gradient;
+
+	Mat copy_gradient = gradient.clone();
 
 	for (int y = 0; y < aHeight; ++y) {
 		for (int x = 0; x < aWidth; ++x) {
@@ -417,11 +524,18 @@ void ImageOperator::NonMaxSuppression(const Mat &direction, Mat &gradient) {
 			compare += current_gradient >= gradient_compare_1;
 			compare += current_gradient >= gradient_compare_2;
 			if (compare < 2)
-				setValueOfMatrix(gradient, y, x, (float)0);
+				setValueOfMatrix(copy_gradient, y, x, (float)0);
 		}
 	}
+	gradient = copy_gradient.clone();
 }
 void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float low_threshold, vector<vector<bool>> &visited) { //dfs at position (y, x)
+	/*
+	Input: canny_mask, gradient_matrix, position_x_axis, position_y_axis, low_threshold, visited_array.
+	Key task: dfs from point[y,x] (make sure that point[y,x] is firmly belong to the edge) to all its neighbor 
+						that value of intensity >= low_threshold to form a connect component of the edge.
+	*/
+
 	int height = canny_mask.rows, width = canny_mask.cols;
 
 	visited[y][x] = true;
@@ -445,6 +559,14 @@ void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, floa
 }
 Mat ImageOperator::HysteresisThresholding(const Mat &gradient, float high_threshold, float low_threshold) {
 	//assert(done the non-max suppression step!)
+	/*
+	Input: GradientImage, 
+	Key task: do the Hyteresis Thresholding
+			+ > high_threshold: edge, < low_threshold: non-edge.
+			+ dfs from Edge pixels to all pixels connecting with it and have gradient >= low_threshold.
+	Output: Black & White Image containing edges based on low_threshold, high_threshold provided.
+	*/
+
 	int aHeight = gradient.rows;
 	int aWidth = gradient.cols;
 	Mat canny_mask = Mat::zeros(aHeight, aWidth, CV_8UC1);
@@ -475,6 +597,11 @@ Mat ImageOperator::HysteresisThresholding(const Mat &gradient, float high_thresh
 // ---------------------------------------------------------------------------------------------------
 // Refinement helper functions
 void ImageOperator::maximizeEdgePixels(Mat& source, int thres){
+	/*
+	Input: SourceImage, threshold
+	Key task & output: return new black&white image, at each pixel: is WHITE if value of SourceImage Intensity value > threshold,
+																	is BLACK otherwise.
+	*/
 	int height = source.rows;
 	int width = source.cols;
 	for(int y = 0; y < height; y++){
