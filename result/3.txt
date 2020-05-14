@@ -1,0 +1,44 @@
+gaussSize: 3, gaussSigma: 1.0, low_thres: 10, high_thres: 30
+
+ true_positive: 12011
+ true_negative: 131455
+ false_positive: 3541
+ false_negative: 7394
+ false_total: 10935
+ precision: 77%
+ recall: 62%
+ true negative rate: 97%
+------------------------------------------------
+gaussSize: 3, gaussSigma: 1.0, low_thres: 20, high_thres: 60
+
+ true_positive: 10780
+ true_negative: 133564
+ false_positive: 3213
+ false_negative: 6844
+ false_total: 10057
+ precision: 77%
+ recall: 61%
+ true negative rate: 98%
+------------------------------------------------
+gaussSize: 5, gaussSigma: 1.0, low_thres: 10, high_thres: 30
+
+ true_positive: 10981
+ true_negative: 132492
+ false_positive: 3563
+ false_negative: 7365
+ false_total: 10928
+ precision: 76%
+ recall: 60%
+ true negative rate: 97%
+------------------------------------------------
+gaussSize: 5, gaussSigma: 1.0, low_thres: 20, high_thres: 60
+
+ true_positive: 9580
+ true_negative: 134758
+ false_positive: 3181
+ false_negative: 6882
+ false_total: 10063
+ precision: 75%
+ recall: 58%
+ true negative rate: 98%
+------------------------------------------------
