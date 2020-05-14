@@ -1,7 +1,7 @@
 CC = "g++"
 DCMAKE_CXX_FLAGS="-std=c++11"
 
-PROJECT = bin/hw2
+PROJECT = bin/1712122_1712822_BT02
 LIBS = `pkg-config opencv4 --cflags --libs`
 
 BIN := bin 

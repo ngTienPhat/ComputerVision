@@ -6,7 +6,10 @@
 #include "image_operator.hpp"
 #include "kernel_generator.hpp"
 #include "image_operator_opencv.hpp"
-//#include <filesystem>
+
+/*
+This class is used to handle command line commands and execute them.
+*/
 
 class CommandHandler{
 private:
@@ -20,21 +23,38 @@ public:
     //CommandHandler();
     CommandHandler(int argc, char** argv);
 
+    /*
+    Main function to execute command line program and show result on user's display
+    */
     void execute();
+    
+    /*
+    This is used for testing with Canny algorithm only
+    */
     void testAndSave(string saveDir);
 // HELPER FUNCTIONS
 private:
+    /*
+    Group of helper functions apply edge detection algorithms based on user 
+    command line arguments
+
+    Input: string of image path
+    Output: Matrix of result
+    */
     Mat executeSobelAlgorithm(string imageDir);
     Mat executePrewittlAlgorithm(string imageDir);
     Mat executeLaplacianAlgorithm(string imageDir);
     Mat executeCannyAlgorithm(string imageDir);
 
+    /*
+    Group of functions check command line validity
+    */
     bool isValidCommands();
     void initPatternCommands();
     void printPatternCommands();
     bool isCommandInPattern(const string &checkCommand);
 
-    //void testAllAlgorithmsOnSingleImage(string imageDir, string saveDir);
+    // These functions are used to test only
     Mat executeAlgorithmWithGivenCommand(string imageDir, string commandName);
     void writeResultLineToFile(ofstream outFile, string lineResult);
 };

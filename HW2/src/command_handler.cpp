@@ -154,7 +154,7 @@ Mat CommandHandler::executeCannyAlgorithm(string imageDir){
         result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd);
     }
     else
-        result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres, false);
+        result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres, true);
     
     return result;
 }

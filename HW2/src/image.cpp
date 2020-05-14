@@ -65,6 +65,12 @@ Mat MyImage::getData(){
 }
 
 Mat MyImage::applyEdgeDetection(string method){
+    if (method == "sobel"){
+        return ImageOperator::EdgeDetectSobel(this->image);
+    }
+    if(method == "prewitt"){
+        return ImageOperator::EdgeDetectPrewitt(this->image);
+    }
     if (method == "laplacian"){
         return ImageOperator::EdgeDetectLaplacian(this->image);
     }

@@ -1,25 +1,13 @@
-rm bin/hw2
+# run examples command
+
+rm bin/1712122_1712822_BT02
 make
-bin/hw2 ../data/1.jpg detect_canny 3 1.0 10 30 1
-bin/hw2 ../data/2.jpg detect_canny 3 1.0 10 30 1
-bin/hw2 ../data/3.jpg detect_canny 3 1.0 10 30 1
-bin/hw2 ../data/4.jpg detect_canny 3 1.0 10 30 1
-bin/hw2 ../data/5.jpg detect_canny 3 1.0 10 30 1
+bin/1712122_1712822_BT02 ../data/1.jpg detect_sobel 3 1.0 100
+bin/1712122_1712822_BT02 ../data/1.jpg detect_prewitt 3 1.0 100
+bin/1712122_1712822_BT02 ../data/1.jpg detect_laplacian 3 1.0 0.2
+bin/1712122_1712822_BT02 ../data/1.jpg detect_canny 5 1.0 20 60
 
-bin/hw2 ../data/1.jpg detect_canny 3 1.0 20 60 0
-bin/hw2 ../data/2.jpg detect_canny 3 1.0 20 60 0
-bin/hw2 ../data/3.jpg detect_canny 3 1.0 20 60 0
-bin/hw2 ../data/4.jpg detect_canny 3 1.0 20 60 0
-bin/hw2 ../data/5.jpg detect_canny 3 1.0 20 60 0
-
-bin/hw2 ../data/1.jpg detect_canny 5 1.0 10 30 1
-bin/hw2 ../data/2.jpg detect_canny 5 1.0 10 30 1
-bin/hw2 ../data/3.jpg detect_canny 5 1.0 10 30 1
-bin/hw2 ../data/4.jpg detect_canny 5 1.0 10 30 1
-bin/hw2 ../data/5.jpg detect_canny 5 1.0 10 30 1
-
-bin/hw2 ../data/1.jpg detect_canny 5 1.0 20 60 0
-bin/hw2 ../data/2.jpg detect_canny 5 1.0 20 60 0
-bin/hw2 ../data/3.jpg detect_canny 5 1.0 20 60 0
-bin/hw2 ../data/4.jpg detect_canny 5 1.0 20 60 0
-bin/hw2 ../data/5.jpg detect_canny 5 1.0 20 60 0
+bin/1712122_1712822_BT02 ../data/3.jpg detect_sobel 3 1.0 100
+bin/1712122_1712822_BT02 ../data/3.jpg detect_prewitt 3 1.0 100
+bin/1712122_1712822_BT02 ../data/3.jpg detect_laplacian 3 1.0 0.2
+bin/1712122_1712822_BT02 ../data/3.jpg detect_canny 5 1.0 20 60

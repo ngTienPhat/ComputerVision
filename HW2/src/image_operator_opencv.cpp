@@ -1,5 +1,9 @@
 #include "image_operator_opencv.hpp"
 
+/*
+This file contains edge detection algorithms implemented by OpenCV library.
+*/
+
 Mat opencvImageOperator::GaussianBlur_opencv(const Mat& sourceImage, int size_of_kernel_gaussian, float signma){
 	Mat result = sourceImage.clone();
 	if (size_of_kernel_gaussian == 3)
@@ -19,6 +23,7 @@ Mat opencvImageOperator::EdgeDetectSobel_opencv(const Mat& sourceImage, float th
 
 	Sobel(src_gray, grad_x, ddepth, 1, 0, ksize, scale, delta, BORDER_DEFAULT);
 	Sobel(src_gray, grad_y, ddepth, 0, 1, ksize, scale, delta, BORDER_DEFAULT);
+	
 	// converting back to CV_8U
 	convertScaleAbs(grad_x, abs_grad_x);
 	convertScaleAbs(grad_y, abs_grad_y);
