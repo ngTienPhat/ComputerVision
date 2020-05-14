@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 
 	CommandHandler executor = CommandHandler(argc, argv);
     //executor.execute();
-	executor.executeAndSave("../result");
+	executor.testAndSave("../result");
 
 	return 0;
 }

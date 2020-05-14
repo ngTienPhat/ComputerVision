@@ -1,7 +1,5 @@
 rm bin/hw2
 make
-bin/hw2 _ --help
-
 bin/hw2 ../data/lena.jpg detect_canny 3 1.0 10 30
 bin/hw2 ../data/1.jpg detect_canny 3 1.0 10 30
 bin/hw2 ../data/2.jpg detect_canny 3 1.0 10 30

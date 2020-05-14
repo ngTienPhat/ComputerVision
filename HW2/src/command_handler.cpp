@@ -29,10 +29,10 @@ void CommandHandler::execute(){
     waitKey(0);
 }
 
-void CommandHandler::executeAndSave(string saveDir){
+void CommandHandler::testAndSave(string saveDir){
     string imgDir = argv[1];
     string imgName = getImageNameFromImageDir(imgDir);
-    cout << "processing " << imgName << "..." << endl;
+    cout << "processing " << imgName << " ..." << endl;
 
     Mat result = executeAlgorithmWithGivenCommand(imgDir, "detect_canny");
 
@@ -67,8 +67,8 @@ void CommandHandler::executeAndSave(string saveDir){
     resultFile << "------------------------------------------------" << endl;
 
     //print result images
-    //MyImage::saveImageFromMatrix(result, saveDir, "my_"+imgName); //save my result
-    //MyImage::saveImageFromMatrix(result, saveDir, "opencv_"+imgName); //save opencv result   
+    MyImage::saveImageFromMatrix(result, saveDir, "my_"+imgName); //save my result
+    MyImage::saveImageFromMatrix(result, saveDir, "opencv_"+imgName); //save opencv result   
 
     cout << "Finish" << endl;
 }

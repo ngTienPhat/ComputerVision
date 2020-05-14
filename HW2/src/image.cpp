@@ -41,9 +41,12 @@ void MyImage::saveImage(string saveDir, string imageName){
 
 void MyImage::saveImageFromMatrix(const Mat& imageMat, string saveDir, string imageName){
     //imwrite()
-    
-    string imageDir = saveDir+"/"+imageName;
-    imwrite(imageDir, imageMat);
+    vector<int> compression_params;
+    compression_params.push_back( IMWRITE_JPEG_QUALITY );
+    compression_params.push_back( 100 );
+
+    string imageDir = saveDir+"/"+imageName+".jpg";
+    imwrite(imageDir, imageMat, compression_params);
     cout << "save " << imageDir << endl;
 }
 
