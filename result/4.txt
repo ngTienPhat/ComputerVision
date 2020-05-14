@@ -1,48 +1,44 @@
 gaussSize: 3, gaussSigma: 1.0, low_thres: 10, high_thres: 30
 
-true_positive: 16640
-true_negative: 116270
-false_positive: 12806
-false_negative: 8685
-false_total: 21491
+ true_positive: 35825
+ true_negative: 94549
+ false_positive: 5686
+ false_negative: 18341
+ false_total: 24027
+ precision: 86%
+ recall: 66%
+ true negative rate: 94%
 ------------------------------------------------
 gaussSize: 3, gaussSigma: 1.0, low_thres: 20, high_thres: 60
 
-true_positive: 14072
-true_negative: 123647
-false_positive: 9901
-false_negative: 6781
-false_total: 16682
-------------------------------------------------
-gaussSize: 3, gaussSigma: 1.0, low_thres: 50, high_thres: 100
-
-true_positive: 12107
-true_negative: 129129
-false_positive: 7190
-false_negative: 5975
-false_total: 13165
+ true_positive: 17222
+ true_negative: 115641
+ false_positive: 3889
+ false_negative: 17649
+ false_total: 21538
+ precision: 82%
+ recall: 49%
+ true negative rate: 97%
 ------------------------------------------------
 gaussSize: 5, gaussSigma: 1.0, low_thres: 10, high_thres: 30
 
-true_positive: 14513
-true_negative: 119126
-false_positive: 13190
-false_negative: 7572
-false_total: 20762
+ true_positive: 27636
+ true_negative: 101243
+ false_positive: 5394
+ false_negative: 20128
+ false_total: 25522
+ precision: 84%
+ recall: 58%
+ true negative rate: 95%
 ------------------------------------------------
 gaussSize: 5, gaussSigma: 1.0, low_thres: 20, high_thres: 60
 
-true_positive: 12693
-true_negative: 124817
-false_positive: 10315
-false_negative: 6576
-false_total: 16891
-------------------------------------------------
-gaussSize: 5, gaussSigma: 1.0, low_thres: 50, high_thres: 100
-
-true_positive: 10456
-true_negative: 130936
-false_positive: 7207
-false_negative: 5802
-false_total: 13009
+ true_positive: 9969
+ true_negative: 128256
+ false_positive: 3213
+ false_negative: 12963
+ false_total: 16176
+ precision: 76%
+ recall: 43%
+ true negative rate: 98%
 ------------------------------------------------

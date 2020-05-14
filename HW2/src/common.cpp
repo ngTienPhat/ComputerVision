@@ -78,3 +78,7 @@ string getImageNameFromImageDir(string imageDir){
 
 	return imageName;
 }
+
+int getMatrixArea(const Mat &source){
+	return source.rows * source.cols;
+}

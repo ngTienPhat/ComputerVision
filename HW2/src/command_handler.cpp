@@ -52,23 +52,30 @@ void CommandHandler::testAndSave(string saveDir){
     int fp = ImageOperator::calculateFalsePositivePoints(result, opencvResult);
     int fn = ImageOperator::calculateFalseNegativePoints(result, opencvResult);
     
+    float imageTotalPoints = getMatrixArea(sourceImage.getData());
+
     string inputParams = "gaussSize: "+ argv[3] + 
                             ", gaussSigma: " + argv[4] + 
                             ", low_thres: " + argv[5] + 
                             ", high_thres: " + argv[6];
     resultFile << inputParams <<endl;
 
-    string score = "\ntrue_positive: "+to_string(tp)+
-                    "\ntrue_negative: "+ to_string(tn)+
-                    "\nfalse_positive: "+to_string(fp)+
-                    "\nfalse_negative: "+to_string(fn)+
-                    "\nfalse_total: "+to_string(fn+fp);
-    resultFile << score <<endl;
+    stringstream score;
+    score << "\n true_positive: " << setprecision(2) <<(tp)
+        << "\n true_negative: " << setprecision(2) <<(tn)
+        << "\n false_positive: " << setprecision(2) <<(fp)
+        << "\n false_negative: " << setprecision(2) <<(fn)
+        << "\n false_total: " << (fp+fn)
+        << "\n precision: " << setprecision(2) <<(100*float(tp)/(tp+fp)) << "%"
+        << "\n recall: " << setprecision(2) <<(100*(float)tp/(tp+fn)) << "%"
+        << "\n true negative rate: " << setprecision(2) <<(100*(float)tn/(tn+fp)) << "%";
+        
+    resultFile << score.str() << endl;
     resultFile << "------------------------------------------------" << endl;
 
     //print result images
     MyImage::saveImageFromMatrix(result, saveDir, "my_"+imgName); //save my result
-    MyImage::saveImageFromMatrix(result, saveDir, "opencv_"+imgName); //save opencv result   
+    MyImage::saveImageFromMatrix(opencvResult, saveDir, "opencv_"+imgName); //save opencv result   
 
     cout << "Finish" << endl;
 }

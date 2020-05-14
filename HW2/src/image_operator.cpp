@@ -387,6 +387,8 @@ void ImageOperator::NonMaxSuppression(const Mat &direction, Mat &gradient) {
 	int angle, compare = 0;
 	float current_gradient;
 
+	Mat copy_gradient = gradient.clone();
+
 	for (int y = 0; y < aHeight; ++y) {
 		for (int x = 0; x < aWidth; ++x) {
 			angle = (int)getValueOfMatrix(direction, y, x);
@@ -418,9 +420,10 @@ void ImageOperator::NonMaxSuppression(const Mat &direction, Mat &gradient) {
 			compare += current_gradient >= gradient_compare_1;
 			compare += current_gradient >= gradient_compare_2;
 			if (compare < 2)
-				setValueOfMatrix(gradient, y, x, (float)0);
+				setValueOfMatrix(copy_gradient, y, x, (float)0);
 		}
 	}
+	gradient = copy_gradient.clone();
 }
 void ImageOperator::dfs(Mat &canny_mask, const Mat &gradient, int y, int x, float low_threshold, vector<vector<bool>> &visited) { //dfs at position (y, x)
 	int height = canny_mask.rows, width = canny_mask.cols;
