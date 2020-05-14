@@ -4,8 +4,6 @@
 // ------- CONSTRUCTOR ---------------------
 MyImage::MyImage(string imageDir, int loadType){
     this->image = imread(imageDir, loadType);
-    cout << "image shape: (" << this->image.rows << "," 
-            << this->image.cols << "," << this->image.channels() << ")\n";
 }
 
 MyImage::MyImage(const Mat &image) {
@@ -36,14 +34,19 @@ void MyImage::showImageFromMatrix(const Mat& imageMat, string windowName, int mo
 }
 
 void MyImage::saveImage(string saveDir, string imageName){
-    string imageDir = saveDir+"/"+imageName+".jpg";
+    string imageDir = saveDir+"/"+imageName+".png";
     imwrite(imageDir, this->image);
     cout << "save " << imageDir << endl;
 }
 
 void MyImage::saveImageFromMatrix(const Mat& imageMat, string saveDir, string imageName){
+    //imwrite()
+    vector<int> compression_params;
+    compression_params.push_back( IMWRITE_JPEG_QUALITY );
+    compression_params.push_back( 100 );
+
     string imageDir = saveDir+"/"+imageName+".jpg";
-    imwrite(imageDir, imageMat);
+    imwrite(imageDir, imageMat, compression_params);
     cout << "save " << imageDir << endl;
 }
 

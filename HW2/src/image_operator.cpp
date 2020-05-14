@@ -57,7 +57,7 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 	MyImage image(sourceImage);
 	// remove noise image
 	Mat gaussianMask = KernelGenerator::createGaussianKernel(gaussSize, gaussStd);
-	Mat cleanedImage = image.removeNoise(gaussianMask);
+	Mat cleanedImage = opencvImageOperator::GaussianBlur_opencv(image.getData(), gaussSize, gaussStd);//image.removeNoise(gaussianMask);
 	
 
 	Mat imageGx, imageGy, magnitude = Mat::zeros(sourceImage.rows, sourceImage.cols, CV_32FC1);
@@ -68,7 +68,6 @@ Mat ImageOperator::EdgeDetectCanny(const Mat& sourceImage, int gaussSize, float 
 
 
 	magnitude = computeMagnitude(imageGx, imageGy);
-
 
 	direction = computeDirection(imageGx, imageGy);
 
@@ -121,14 +120,83 @@ Mat ImageOperator::EdgeDetectLaplacian(const Mat& sourceImage, int gaussSize, fl
 int ImageOperator::measureDifference(const Mat &result, const Mat &ground_truth) {
 	if (result.rows != ground_truth.rows || result.cols != ground_truth.cols || result.channels() != ground_truth.channels())
 		return -1;
-	int diff = 0;
-	int height = ground_truth.rows, width = ground_truth.cols;
+	// int height = ground_truth.rows, width = ground_truth.cols;
+	// float eps = 1e-3;
+
+	// for (int y = 0; y < height; ++y)
+	// 	for (int x = 0; x < width; ++x)
+	// 		diff += abs(getValueOfMatrix(result, y, x) - getValueOfMatrix(ground_truth, y, x)) > eps;
+	
+	int diff = calculateFalsePositivePoints(result, ground_truth) + calculateFalseNegativePoints(result, ground_truth);
+	return diff;
+}
+
+// calculate false positive edge points
+int ImageOperator::calculateFalsePositivePoints(const Mat& result, const Mat& groundTruth){
+	int count= 0;
+	int height = result.rows;
+	int width = result.cols;
 	float eps = 1e-3;
 
-	for (int y = 0; y < height; ++y)
-		for (int x = 0; x < width; ++x)
-			diff += abs(getValueOfMatrix(result, y, x) - getValueOfMatrix(ground_truth, y, x)) > eps;
-	return diff;
+	for(int y = 0; y < height; y++){
+		for(int x = 0; x < width; x++){
+			if (getValueOfMatrix(result, y, x) > 0 && getValueOfMatrix(groundTruth, y, x) == 0){
+				count++;
+			}
+		}
+	}
+	return count;
+}
+	
+// calculate false negative edge points
+int ImageOperator::calculateFalseNegativePoints(const Mat& result, const Mat& groundTruth){
+	int count= 0;
+	int height = result.rows;
+	int width = result.cols;
+	float eps = 1e-3;
+
+	for(int y = 0; y < height; y++){
+		for(int x = 0; x < width; x++){
+			if (getValueOfMatrix(result, y, x) == 0 && getValueOfMatrix(groundTruth, y, x) > 0){
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+// calculate true positive edge points
+int ImageOperator::calculateTruePositivePoints(const Mat& result, const Mat& groundTruth){
+	int count= 0;
+	int height = result.rows;
+	int width = result.cols;
+	float eps = 1e-3;
+
+	for(int y = 0; y < height; y++){
+		for(int x = 0; x < width; x++){
+			if (getValueOfMatrix(result, y, x) > 0 && getValueOfMatrix(groundTruth, y, x) > 0){
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+// calculate true negative edge points
+int ImageOperator::calculateTrueNegativePoints(const Mat& result, const Mat& groundTruth){
+	int count= 0;
+	int height = result.rows;
+	int width = result.cols;
+	float eps = 1e-3;
+
+	for(int y = 0; y < height; y++){
+		for(int x = 0; x < width; x++){
+			if (getValueOfMatrix(result, y, x) == 0 && getValueOfMatrix(groundTruth, y, x) == 0){
+				count++;
+			}
+		}
+	}
+	return count;
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -385,10 +453,10 @@ Mat ImageOperator::HysteresisThresholding(const Mat &gradient, float high_thresh
 		for (int x = 0; x < aWidth; ++x) {
 			if (getValueOfMatrix(gradient, y, x) < low_threshold)
 				canny_mask.at<uchar>(y, x) = 0;
-			else if (getValueOfMatrix(gradient, y, x) > high_threshold)
+			else if (getValueOfMatrix(gradient, y, x) >= high_threshold)
 				canny_mask.at<uchar>(y, x) = 255;
 		}
-	}
+	} 
 
 	vector<vector<bool>> visited(aHeight, vector<bool>(aWidth, false));
 

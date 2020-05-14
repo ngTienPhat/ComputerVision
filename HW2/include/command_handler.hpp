@@ -21,7 +21,7 @@ public:
     CommandHandler(int argc, char** argv);
 
     void execute();
-
+    void testAndSave(string saveDir);
 // HELPER FUNCTIONS
 private:
     Mat executeSobelAlgorithm(string imageDir);
@@ -36,6 +36,7 @@ private:
 
     //void testAllAlgorithmsOnSingleImage(string imageDir, string saveDir);
     Mat executeAlgorithmWithGivenCommand(string imageDir, string commandName);
+    void writeResultLineToFile(ofstream outFile, string lineResult);
 };
 
 #endif //COMMAND_HANDLER_HPP__

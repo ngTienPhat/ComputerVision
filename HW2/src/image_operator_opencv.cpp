@@ -50,7 +50,7 @@ Mat opencvImageOperator::EdgeDetectCanny_opencv(const Mat& sourceImage, float lo
 
 	result = GaussianBlur_opencv(result, size_of_kernel_gaussian, signma);
 
-	Canny(result, result, low_threshold, high_threshold);
+	Canny(result, result, low_threshold, high_threshold, 3, true);
 	return result;
 }
 

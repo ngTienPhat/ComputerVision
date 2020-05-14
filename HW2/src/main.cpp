@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
 	//string image_dir = data_dir+"/lena.jpg";
 
 	CommandHandler executor = CommandHandler(argc, argv);
-    executor.execute();
+    //executor.execute();
+	executor.testAndSave("../result");
 
 	return 0;
 }

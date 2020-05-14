@@ -59,3 +59,22 @@ Mat addMatrix(const Mat& a, const Mat& b){
     }   
     return result;
 }
+
+string getImageNameFromImageDir(string imageDir){
+	int sLength = imageDir.size();
+	int start = 0;
+	string imageName= "";
+
+	for(int j = sLength-1; j >= 0; --j){
+		if (imageDir[j] == '/'){
+			start = j+1;
+			break;
+		}
+	}
+	while(imageDir[start] != '.'){
+		imageName += imageDir[start];
+		start+=1;
+	}
+
+	return imageName;
+}
