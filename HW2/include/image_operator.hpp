@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "image.hpp"
 #include "kernel_generator.hpp"
+#include "image_operator_opencv.hpp"
 
 class ImageOperator {
 	// PUBLIC FUNCTIONS
@@ -26,6 +27,19 @@ public:
 
 	// measure Difference between 2 Mat
 	static int measureDifference(const Mat &result, const Mat &ground_truth);
+
+	// calculate false positive edge points
+	static int calculateFalsePositivePoints(const Mat& result, const Mat& groundTruth);
+	
+	// calculate false negative edge points
+	static int calculateFalseNegativePoints(const Mat& result, const Mat& groundTruth);
+	
+	// calculate true positive edge points
+	static int calculateTruePositivePoints(const Mat& result, const Mat& groundTruth);
+	
+	// calculate true negative edge points
+	static int calculateTrueNegativePoints(const Mat& result, const Mat& groundTruth);
+
 	// PRIVATE FUNCTION:
 private:
 	// ---------------------------------------------------------------------------------------------------

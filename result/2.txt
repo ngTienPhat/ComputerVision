@@ -1,0 +1,48 @@
+gaussSize: 3, gaussSigma: 1.0, low_thres: 10, high_thres: 30
+
+true_positive: 6596
+true_negative: 141423
+false_positive: 5346
+false_negative: 1036
+false_total: 6382
+------------------------------------------------
+gaussSize: 3, gaussSigma: 1.0, low_thres: 20, high_thres: 60
+
+true_positive: 5192
+true_negative: 144024
+false_positive: 4263
+false_negative: 922
+false_total: 5185
+------------------------------------------------
+gaussSize: 3, gaussSigma: 1.0, low_thres: 50, high_thres: 100
+
+true_positive: 3295
+true_negative: 147480
+false_positive: 2829
+false_negative: 797
+false_total: 3626
+------------------------------------------------
+gaussSize: 5, gaussSigma: 1.0, low_thres: 10, high_thres: 30
+
+true_positive: 6124
+true_negative: 141644
+false_positive: 5657
+false_negative: 976
+false_total: 6633
+------------------------------------------------
+gaussSize: 5, gaussSigma: 1.0, low_thres: 20, high_thres: 60
+
+true_positive: 4581
+true_negative: 144113
+false_positive: 4711
+false_negative: 996
+false_total: 5707
+------------------------------------------------
+gaussSize: 5, gaussSigma: 1.0, low_thres: 50, high_thres: 100
+
+true_positive: 3042
+true_negative: 147649
+false_positive: 3007
+false_negative: 703
+false_total: 3710
+------------------------------------------------

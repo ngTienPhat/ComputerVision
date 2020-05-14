@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <fstream>
 
 using namespace std;
 using namespace cv;
@@ -16,5 +17,5 @@ void printMatrixInfo(const Mat &source);
 float getValueOfMatrix(const Mat &source, int y, int x);
 void setValueOfMatrix(Mat &source, int y, int x, float value);
 Mat addMatrix(const Mat& a, const Mat& b);
-
+string getImageNameFromImageDir(string imageDir);
 #endif //COMMON_HPP__

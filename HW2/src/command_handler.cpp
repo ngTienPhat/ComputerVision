@@ -29,6 +29,50 @@ void CommandHandler::execute(){
     waitKey(0);
 }
 
+void CommandHandler::executeAndSave(string saveDir){
+    string imgDir = argv[1];
+    string imgName = getImageNameFromImageDir(imgDir);
+    cout << "processing " << imgName << "..." << endl;
+
+    Mat result = executeAlgorithmWithGivenCommand(imgDir, "detect_canny");
+
+    int gaussSize = stoi(argv[3]);    
+    float gaussStd = stof(argv[4]);
+    int lowThres = stoi(argv[5]);
+    int hightThres = stoi(argv[6]);
+
+    MyImage sourceImage = MyImage(imgDir, IMREAD_GRAYSCALE);
+    Mat opencvResult = opencvImageOperator::EdgeDetectCanny_opencv(sourceImage.getData(), lowThres, hightThres, gaussSize, gaussStd);
+
+    ofstream resultFile;
+    resultFile.open(saveDir+"/"+imgName+".txt", ios::out | ios::app);
+
+    int tp = ImageOperator::calculateTruePositivePoints(result, opencvResult);
+    int tn = ImageOperator::calculateTrueNegativePoints(result, opencvResult);
+    int fp = ImageOperator::calculateFalsePositivePoints(result, opencvResult);
+    int fn = ImageOperator::calculateFalseNegativePoints(result, opencvResult);
+    
+    string inputParams = "gaussSize: "+ argv[3] + 
+                            ", gaussSigma: " + argv[4] + 
+                            ", low_thres: " + argv[5] + 
+                            ", high_thres: " + argv[6];
+    resultFile << inputParams <<endl;
+
+    string score = "\ntrue_positive: "+to_string(tp)+
+                    "\ntrue_negative: "+ to_string(tn)+
+                    "\nfalse_positive: "+to_string(fp)+
+                    "\nfalse_negative: "+to_string(fn)+
+                    "\nfalse_total: "+to_string(fn+fp);
+    resultFile << score <<endl;
+    resultFile << "------------------------------------------------" << endl;
+
+    //print result images
+    //MyImage::saveImageFromMatrix(result, saveDir, "my_"+imgName); //save my result
+    //MyImage::saveImageFromMatrix(result, saveDir, "opencv_"+imgName); //save opencv result   
+
+    cout << "Finish" << endl;
+}
+
 // --------------------------------------------------------
 // PRIVATE AREA
 
@@ -45,6 +89,9 @@ Mat CommandHandler::executeAlgorithmWithGivenCommand(string imageDir, string com
     return executeCannyAlgorithm(imageDir);
 }
 
+void CommandHandler::writeResultLineToFile(ofstream outFile, string lineResult){
+    outFile << lineResult << endl;
+}
 
 // Execute Algorithm given image dir
 Mat CommandHandler::executeSobelAlgorithm(string imageDir){
@@ -58,7 +105,6 @@ Mat CommandHandler::executeSobelAlgorithm(string imageDir){
     Mat result = ImageOperator::EdgeDetectSobel(inputImage.getData(), gaussSize, gaussStd, pixelThres, true);
     return result;
 }
-
 Mat CommandHandler::executePrewittlAlgorithm(string imageDir){
     cout << "Detecting edge with Prewitt algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
@@ -87,7 +133,7 @@ Mat CommandHandler::executeLaplacianAlgorithm(string imageDir){
     return result;
 }
 Mat CommandHandler::executeCannyAlgorithm(string imageDir){
-    cout << "Detecting edge with Canny algorithm..." << endl;
+    //cout << "Detecting edge with Canny algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir, IMREAD_GRAYSCALE);
 
     int gaussSize = stoi(argv[3]);
@@ -99,8 +145,8 @@ Mat CommandHandler::executeCannyAlgorithm(string imageDir){
     if (hightThres < lowThres){
         result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd);
     }
-    else 
-        result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres);
+    else
+        result = ImageOperator::EdgeDetectCanny(inputImage.getData(), gaussSize, gaussStd, lowThres, hightThres, false);
     
     return result;
 }
