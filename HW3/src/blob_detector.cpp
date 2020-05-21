@@ -17,7 +17,6 @@ void BlobDetector::detectBlob_LoG(const Mat& source){
 
     //3. visualize result
     visualizeResult(source, blobs);
-
 }
 
 vector<Mat> BlobDetector::getScaleLaplacianImages(const Mat& source, vector<float>& maxLogValues, float startSigma){
@@ -25,10 +24,10 @@ vector<Mat> BlobDetector::getScaleLaplacianImages(const Mat& source, vector<floa
     int nLayers=8;
     float sigma=startSigma;
 
-    for(int i = 1; i < nLayers; i++){
-        sigma *= pow(k, i);
-        int kernelSize = getLogFilterSize(sigma);
-        Mat logKernel = KernelGenerator::createLoGkernel(kernelSize, sigma);
+    for(int i = 1; i <= nLayers; i++){
+        float scaledSigma = sigma * pow(k, i);
+        int kernelSize = getLogFilterSize(scaledSigma);
+        Mat logKernel = KernelGenerator::createLoGkernel(kernelSize, scaledSigma);
         Mat logImage = OpencvHelper::conv2d(source, logKernel);
 
         // square log image
@@ -91,6 +90,6 @@ void BlobDetector::visualizeResult(const Mat& source, vector<Blob> blobs){
 }
 
 int BlobDetector::getLogFilterSize(float sigma){
-    int filterSize = 5;
-    return 5;//(int)(sigma+5);
+    int filterSize = 2*ceil(3*sigma)+1;
+    return filterSize;//(int)(sigma+5);
 }
