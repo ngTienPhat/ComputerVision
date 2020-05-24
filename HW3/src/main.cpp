@@ -3,7 +3,18 @@
 #include "corner_detector.hpp"
 #include "blob_detector.hpp"
 #include "image.hpp"
+#include "sift.hpp"
 
+void testSift(){
+	string  dataDir = "../data";
+	string imageDir = dataDir + "/sunflower_small.jpg";
+
+	Mat coloredImage = imread(imageDir);
+	MyImage testImage(imageDir);
+
+	Sift siftDetector(1.4, 4, 3);
+	siftDetector.execute(testImage.getData());
+}
 void testHaris(){
 	string  dataDir = "../data";
 	string imageDir = dataDir + "/lena.png";
@@ -16,7 +27,6 @@ void testHaris(){
 
 	waitKey(0);
 }
-
 void testBlob(){
 	string  dataDir = "../data";
 	string imageDir = dataDir + "/sunflower_small.jpg";
@@ -28,24 +38,27 @@ void testBlob(){
 	
 	waitKey(0);
 }
+void testBlobDog(){
+	string  dataDir = "../data";
+	string imageDir = dataDir + "/sunflower_small.jpg";
 
-void testEigenValues(){
-	Mat testMat = (Mat_<float>(3, 3) << 3, 2, 4, 
-									 2, 0, 2, 
-									 4, 2, 3);
-	Mat eValues, eVectors;
-	eigen(testMat, eValues, eVectors);
+	Mat coloredImage = imread(imageDir);
+	MyImage testImage(imageDir);	
+
+	BlobDetector::detectBlob_DoG(coloredImage);
 	
-	cout << eValues << endl;
-	cout << eVectors << endl;
+	waitKey(0);
 }
 
+
 int main(int argc, char** argv) {
-	//testEigenValues();
-	//testHaris();
-	testBlob();
-	// float k = sqrt(2);
-	// int i = 8;
-	// cout << pow(k, i)*sqrt(2)*1.4 << endl;
+
+	testSift();
+
+	// Mat a = (Mat_<float>(1,3) << 0, -1, 0); 
+	// Mat b = (Mat_<float>(3,1) << 0, -1, 0); 
+
+	// Mat result = MatrixHelper::convertMatExprToMat(a*b);
+	// cout << result;
 	return 0;
 }

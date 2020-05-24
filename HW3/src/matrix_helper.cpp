@@ -121,3 +121,8 @@ bool MatrixHelper::isLocalMaximaAmongNeighbors(const Mat& source, int y, int x, 
 
 	return isLocalMaxima(source, y, x, height, width, NULL, windowSize);
 }
+
+Mat MatrixHelper::convertMatExprToMat(const MatExpr &matExpr){
+	Mat result = Mat(matExpr);
+	return result;
+}

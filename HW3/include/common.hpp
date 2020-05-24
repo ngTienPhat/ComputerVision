@@ -20,4 +20,7 @@ float multiplyFunction(float a, float b);
 float divideFunction(float a, float b);
 float substractFuntion(float a, float b);
 
+template<class T>
+void extendVector(vector<T> &a, const vector<T> &b);
+
 #endif //COMMON_HPP__

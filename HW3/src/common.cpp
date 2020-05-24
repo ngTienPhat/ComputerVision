@@ -31,3 +31,11 @@ float divideFunction(float a, float b){
 float substractFuntion(float a, float b){
 	return a-b;
 }
+
+template<class T>
+void extendVector(vector<T> &a, const vector<T> &b){
+	vector<T> res = a;
+	res.reserve(a.size() + distance(b.begin(), b.end()));
+	res.insert(res.end(), b.start(), b.end());
+	return res;
+}

@@ -15,4 +15,6 @@ namespace MatrixHelper{
 
     bool isLocalMaxima(const Mat& source, int y, int x, int height, int width, float* currentValue=NULL, int windowSize=3);
     bool isLocalMaximaAmongNeighbors(const Mat& source, int y, int x, const vector<Mat>& neighbors, int windowSize=3);
+
+    Mat convertMatExprToMat(const MatExpr &matExpr);
 }
