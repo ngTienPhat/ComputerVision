@@ -10,12 +10,14 @@ struct Octave{
     //vector<Mat> gaussizeImage;
     vector<Mat> gaussImages;
     vector<Mat> dogImages;
+
 };
 
 struct Extrema{
     int x; int y; // coordinate of this extrema point in DoG image
     int octaveIndex; // index of its octave in all generated octaves
     int octaveDogIndex; // index of correspondent DoG layer in that its octave
+    float orientation;
 };
 
 struct LocalizationResult{
@@ -24,6 +26,11 @@ struct LocalizationResult{
     Mat hessianMatrix; // size: [2, 2]
 };
 
-struct GradientHistogram{
-    int bin[36]={10};
+struct ExtremaGradient{
+    float magnitude;
+    float theta;
+};
+
+struct OrientationHistogram{
+    float hist[36]={0};
 };

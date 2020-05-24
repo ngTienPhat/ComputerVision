@@ -28,13 +28,148 @@ void Sift::execute(const Mat& source){
     cout << "Extrema: " << candidates.size() << endl;
     // test module A:
 
-// B. 
+// B. Localize keypoints
     thresholdingExtrema(candidates, octaves);
+    cout << "num keypoints after thresholding: " << candidates.size() << endl;
+// C. assign orientation
+    assignKeypointsOrientation(candidates, octaves);
+    cout << "num keypoints after assigning orientation: " << candidates.size() << endl;
+// D. descrip keypoint
+
 
 }
 
 // --------------------------------------------------------
 // -------- EXECUTION HELPER FUNCTIONS --------
+
+// D. Create keypoint descriptor
+
+
+// C. Orientation assignment
+void Sift::assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<Octave> &octaves){
+    vector<Extrema> newKeypoints;
+    
+    float binWidth = 360/this->orientationNumBin;
+    int nCurrentKeypoints = keypoints.size();
+
+    for(int i = 0; i < nCurrentKeypoints; i++){
+        OrientationHistogram orientationHistogram;
+
+        Extrema keypoint = keypoints[i];
+        int x = keypoint.x;
+        int y = keypoint.y;
+        int dogIndex = keypoint.octaveDogIndex;
+        Mat dogImage = octaves[keypoint.octaveIndex].dogImages[dogIndex];
+        int dogWidth = dogImage.cols;
+        int dogHeight = dogImage.rows;
+        
+        float sigma = getSigmaFromSpecificDog(keypoint.octaveIndex, keypoint.octaveDogIndex) * 1.5;
+        int weightWindowSize = int(2*ceil(sigma)+1);
+        Mat weightKernel = KernelGenerator::createGaussianKernel(2*weightWindowSize+1, sigma);
+        
+        int cx, cy;
+        for(int oy = -weightWindowSize; oy <= weightWindowSize; oy++){
+            for(int ox = -weightWindowSize; ox <= weightWindowSize; ox++){
+                cx = x + ox;
+                cy = y + oy;
+                if (cx < 0 || cx >= dogWidth || cy < 0 || cy >= dogHeight)
+                    continue;
+                
+                ExtremaGradient gradientResult = getGradientValueOfDOGpoint(cy, cx, dogImage);
+                int bin = quantizeOrientationBinOfKeypoint(gradientResult);
+                orientationHistogram.hist[bin] += MatrixHelper::getValueOfMatrix(weightKernel, cy+weightWindowSize, cx+weightWindowSize)*gradientResult.magnitude;
+        
+            }
+        }
+
+        int maxBinIdx = getMaxHistogramIndex(orientationHistogram);
+        keypoint.orientation = getOrientationByFittingParabola(orientationHistogram, maxBinIdx, binWidth);
+        int maxHistValueCount = orientationHistogram.hist[maxBinIdx];
+
+        newKeypoints.push_back(keypoint);
+
+        for(int i = 0; i < this->orientationNumBin; i++){
+            if (i == maxBinIdx)
+                continue;
+            
+            if (0.8*maxHistValueCount <= orientationHistogram.hist[i]){
+                Extrema newKeypoint = keypoint;
+                newKeypoint.orientation = getOrientationByFittingParabola(orientationHistogram, i, binWidth);
+                newKeypoints.push_back(newKeypoint);
+            }
+        }
+    }
+
+    keypoints = newKeypoints;
+}
+
+// C - helper functions
+int Sift::quantizeOrientationBinOfKeypoint(const ExtremaGradient &keypointGradient){
+    int binWidth = 360/this->orientationNumBin;
+    int binIdx = int(floor(keypointGradient.theta))/binWidth;
+    return binIdx;
+}
+ExtremaGradient Sift::getGradientValueOfDOGpoint(int y, int x, const Mat& keypointDOG){
+    ExtremaGradient result; 
+
+    float dy = MatrixHelper::getValueOfMatrix(keypointDOG, min(keypointDOG.rows-1, y+1), x) -
+                MatrixHelper::getValueOfMatrix(keypointDOG, max(0, y-1), x);
+    float dx = MatrixHelper::getValueOfMatrix(keypointDOG, y, min(keypointDOG.cols-1, x+1)) -
+                MatrixHelper::getValueOfMatrix(keypointDOG, y, max(0, x-1));
+
+    result.magnitude = sqrt(pow(dy, 2)+pow(dx, 2));
+    result.theta = (atan2(dy, dx)+KernelGenerator::pi)*180/KernelGenerator::pi;
+
+    return result;
+}
+float Sift::getOrientationByFittingParabola(const OrientationHistogram& orientationHistogram, int maxBinIndex, float binWidth){
+    float centerValue = maxBinIndex*binWidth + binWidth/2;
+
+    float rightValue, leftValue;
+    if (maxBinIndex == this->orientationNumBin-1){
+        rightValue = 360 + binWidth/2;
+    }
+    else{
+        rightValue = (maxBinIndex+1)*binWidth + binWidth/2;
+    }
+    if (maxBinIndex == 0){
+        leftValue = -binWidth/2;
+    }
+    else{
+        leftValue = (maxBinIndex-1)*binWidth + binWidth/2;
+    }
+
+    Mat A = (Mat_<float>(3,3) << pow(centerValue, 2), centerValue, 1, 
+			                     pow(rightValue, 2), rightValue, 1, 
+			                      pow(leftValue, 2), leftValue, 1);
+    
+    Mat B = (Mat_<float>(3,1) << orientationHistogram.hist[maxBinIndex], 
+                                orientationHistogram.hist[(maxBinIndex+1 )% this->orientationNumBin],
+                                orientationHistogram.hist[(maxBinIndex-1) % this->orientationNumBin]);
+    
+    Mat output = MatrixHelper::convertMatExprToMat(
+        A.inv()*B
+    );
+    float a = MatrixHelper::getValueOfMatrix(output, 0, 0);
+    float b = MatrixHelper::getValueOfMatrix(output, 0, 1);
+    if (a==0){
+        a = 1e-6;
+    }
+    return -b/(2*a);
+}
+//get max bin index, TODO
+int Sift::getMaxHistogramIndex(const OrientationHistogram &histogram){
+    int index = 0;
+    float maxValue = histogram.hist[index];
+    for(int i = 1; i < this->orientationNumBin; i++){
+        if (histogram.hist[i] > maxValue){
+            index = i;
+            maxValue = histogram.hist[i];
+        }
+    }
+    return index;
+}
+
 
 // B. 
 // B.1 Compute subpixel location of each keypoint
@@ -91,7 +226,14 @@ void Sift::updateKeypointValue(Extrema& keypoint, const LocalizationResult& loca
     keypoint.x += MatrixHelper::getValueOfMatrix(localizeInfo.offset, 0, 0);
 
     float sigmaOffset = MatrixHelper::getValueOfMatrix(localizeInfo.offset, 0, 2);
-    keypoint.octaveDogIndex = (int)(keypoint.octaveDogIndex + sigmaOffset);
+    int newDogIndex = (int)(keypoint.octaveDogIndex + sigmaOffset);
+    if (newDogIndex < 0){
+        newDogIndex = 0;
+    }
+    else if(newDogIndex > this->numScalesPerOctave){
+        newDogIndex = this->numScalesPerOctave-1;
+    }
+    keypoint.octaveDogIndex = newDogIndex;
 }
 
 // B.2 Remove keypoints with low contrast 
@@ -128,7 +270,6 @@ void Sift::thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> 
     }
 
     keypoints = finalKeypoints;
-    cout << "num keypoints after thresholding: " << finalKeypoints.size() << endl;
 }
 
 // A. 
@@ -241,4 +382,7 @@ int Sift::getGaussKernelSize(float sigma){
     int filterSize = 2*ceil(3*sigma)+1;
     return filterSize;//(int)(sigma+5);
 }
-
+float Sift::getSigmaFromSpecificDog(int octaveIndex, int dogIndex){
+    float sigma = this->sigmaScale[dogIndex];
+    return sigma;
+}

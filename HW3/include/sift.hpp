@@ -8,7 +8,7 @@ class Sift{
 // attributes
 private: 
     int kernelSize=5;
-
+    int orientationNumBin=36;
 
     float sigma;
     int numOctave;
@@ -23,12 +23,24 @@ public:
 
 // helper functions:
 private:
-//C. Orientation assignment
+// D. Create Local Description 
+
+
+// C. Orientation assignment
+    void assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<Octave> &octaves);
+    int quantizeOrientationBinOfKeypoint(const ExtremaGradient &keypointGradient);
+    ExtremaGradient getGradientValueOfDOGpoint(int y, int x, const Mat& keypointDOG);
+    // fit parabola to get accurate orientation of chosen bin
+    float getOrientationByFittingParabola(const OrientationHistogram& orientationHistogram, int maxBinIndex, float binWidth);
+    //get max bin index
+    int getMaxHistogramIndex(const OrientationHistogram &histogram);
+    
 
 //B. Localize keypoints
     // B.1 Compute subpixel location of each keypoint
     LocalizationResult computeExtremaOffset(const Extrema &keypoint, const vector<Octave> &octaves);
     void updateKeypointValue(Extrema& keypoint, const LocalizationResult& localizeInfo);
+    
 
     // B.2 Remove edge or low contrast keypoints
     void thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> &octaves, float thresContrast=0.3, float thresR=10);

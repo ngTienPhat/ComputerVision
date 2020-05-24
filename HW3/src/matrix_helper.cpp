@@ -126,3 +126,17 @@ Mat MatrixHelper::convertMatExprToMat(const MatExpr &matExpr){
 	Mat result = Mat(matExpr);
 	return result;
 }
+
+Mat MatrixHelper::getPatch(const Mat& source, int top, int left, int bottom, int right){
+	int patchWidth = right-left+1;
+	int patchHeight = bottom-top+1;
+	Mat patch(patchHeight, patchWidth, CV_32FC1);
+
+	for(int y = 0; y < patchHeight; y++){
+		for(int x = 0; x < patchWidth; x++){
+			setValueOfMatrix(patch, y, x, getValueOfMatrix(source, top+y, left + x)); 
+		}
+	}
+
+	return patch;
+}
