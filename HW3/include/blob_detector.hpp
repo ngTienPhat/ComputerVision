@@ -14,7 +14,6 @@ class BlobDetector{
 private:
     static const float k;
 
-
 public:
     static void detectBlob_LoG(const Mat& source);
     static void detectBlob_DoG(const Mat& source);

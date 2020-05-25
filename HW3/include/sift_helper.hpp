@@ -18,6 +18,7 @@ struct Extrema{
     int octaveIndex; // index of its octave in all generated octaves
     int octaveDogIndex; // index of correspondent DoG layer in that its octave
     float orientation;
+    vector<float> descriptors;
 };
 
 struct LocalizationResult{
@@ -26,11 +27,13 @@ struct LocalizationResult{
     Mat hessianMatrix; // size: [2, 2]
 };
 
-struct ExtremaGradient{
+struct GradientResult{
     float magnitude;
     float theta;
 };
 
 struct OrientationHistogram{
+    int size;
+    vector<float> histogram;
     float hist[36]={0};
 };
