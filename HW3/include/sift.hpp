@@ -84,7 +84,7 @@ private:
     float getSigmaFromSpecificDog(int octaveIndex, int dogIndex);
 
     // helper function: generate orientation histogram
-    OrientationHistogram generateOrientationHistogram(const Mat& DOGimage, const Mat& weightKernel, int windowSize);
+    OrientationHistogram generateOrientationHistogram(const Mat& DOGimage, const Mat& weightKernel);
     
     // get DOG matrix of a specific keypoint
     Mat getDOGimageGivenKeypoint(const Extrema& keypoint, const vector<Octave> &octaves);

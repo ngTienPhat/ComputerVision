@@ -134,7 +134,7 @@ Mat MatrixHelper::getPatch(const Mat& source, int top, int left, int bottom, int
 
 	for(int y = 0; y < patchHeight; y++){
 		for(int x = 0; x < patchWidth; x++){
-			setValueOfMatrix(patch, y, x, getValueOfMatrix(source, top+y, left + x)); 
+			setValueOfMatrix(patch, y, x, getValueOfMatrix(source, top + y, left + x)); 
 		}
 	}
 

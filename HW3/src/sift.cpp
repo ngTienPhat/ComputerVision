@@ -69,16 +69,36 @@ void Sift::generateKeypointDescriptorVector(Extrema& keypoint, const Mat& patch,
 
     for(int i = 0; i < numSubregionAxis; i++){
         for(int j = 0; j < numSubregionAxis; j++){
-            int startX = i*widthSubRegion;
-            int startY = j*widthSubRegion;
+            int top = i*widthSubRegion;
+            int left = j*widthSubRegion;
+
             if (i >= numSubregionAxis/2){
-                startX += 1;
+                top += 1;
             }
             if (j >= numSubregionAxis/2){
-                startY += 1;
+                left += 1;
             }
 
-            OrientationHistogram histogramResult = generateOrientationHistogram(patch, weight, widthSubRegion);
+            int bottom = min(patch.rows-1, top + widthSubRegion);
+            int right = min(patch.cols-1, left + widthSubRegion);
+
+            // cout << "start computing orientation " << endl;
+            // cout << "top: " << top << " \nleft: " << left << "\nbottom: "<<  bottom << "\nright: " << right << endl;
+            // cout << "patch: "; MatrixHelper::printMatrixInfo(patch);
+
+            OrientationHistogram histogramResult;
+            if (top >= bottom || left >= right){
+                histogramResult.size = descriptorNumBin;
+                histogramResult.histogram.resize(histogramResult.size, 0);
+            }
+            else{
+                histogramResult = generateOrientationHistogram(
+                    MatrixHelper::getPatch(patch, top, left, bottom, right), 
+                    MatrixHelper::getPatch(weight, top, left, bottom, right)
+                );
+            }
+            
+            //cout << "finish computing orientation" << endl;
             keypoint.descriptors.insert(keypoint.descriptors.end(), histogramResult.histogram.begin(), histogramResult.histogram.end());
         }
     }
@@ -95,8 +115,6 @@ Mat Sift::getPatchOfDescriptorAndWeightKernel(const Extrema &keypoint, const Mat
 
     return patch;
 }
-
-
 
 
 
@@ -455,13 +473,20 @@ float Sift::getSigmaFromSpecificDog(int octaveIndex, int dogIndex){
     return sigma;
 }
 
-OrientationHistogram Sift::generateOrientationHistogram(const Mat& DOGimage, const Mat& weightKernel, int windowSize){
+OrientationHistogram Sift::generateOrientationHistogram(const Mat& DOGimage, const Mat& weightKernel){
     OrientationHistogram histogramResult;
     histogramResult.size = this->descriptorNumBin;
     histogramResult.histogram.resize(histogramResult.size, 0);
 
-    for(int y = 0; y < windowSize; y++){
-        for(int x = 0; x < windowSize; x++){
+    int height = DOGimage.rows;
+    int width = DOGimage.cols;
+
+    if (height <= 0 || width <= 0){
+        return histogramResult;
+    }
+
+    for(int y = 0; y < height; y++){
+        for(int x = 0; x < width; x++){
             GradientResult gradResult = getGradientValueOfDOGpoint(y, x, DOGimage);
             int binIdx = quantizeOrientationBinOfKeypoint(gradResult, this->descriptorNumBin);
             
