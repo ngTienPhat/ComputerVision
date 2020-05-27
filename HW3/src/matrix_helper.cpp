@@ -87,6 +87,12 @@ Mat MatrixHelper::applyOperator(const Mat& a, const Mat& b, string operatorName)
 
 }
 
+Mat MatrixHelper::convertToGrayscale(const Mat& source){
+	Mat res;
+	cvtColor(source, res, COLOR_BGR2GRAY);
+	return res;
+}
+
 int MatrixHelper::getMatrixArea(const Mat &source){
 	return source.rows * source.cols;
 }

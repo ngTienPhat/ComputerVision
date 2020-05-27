@@ -35,5 +35,4 @@ struct GradientResult{
 struct OrientationHistogram{
     int size;
     vector<float> histogram;
-    float hist[36]={0};
 };

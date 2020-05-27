@@ -18,8 +18,8 @@ private:
     
     // Parameters for A
     float sigma;
-    int numOctave;
-    int numScalesPerOctave;
+    int numOctave; // default: 4
+    int numScalesPerOctave; // number of DoG for each octave, default: 3
     float k;
     vector<float> sigmaScale; // sigma for each scale in 1 octave;
 public:
@@ -59,7 +59,7 @@ private:
     void updateKeypointValue(Extrema& keypoint, const LocalizationResult& localizeInfo);
 
     // B.2 Remove edge or low contrast keypoints
-    void thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> &octaves, float thresContrast=0.3, float thresR=10);
+    void thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> &octaves, float thresContrast=0.03, float thresR=10);
     
 
 
@@ -69,7 +69,7 @@ private:
     
     // A.2
     void createDogPyramidFromGaussPyramid(vector<Octave> &octaves);
-    Octave createOctaveGaussianPyramid(const Mat& inputMatrix, float sigma, int octaveIndex);
+    Octave createOctaveGaussianPyramid(const Mat& inputMatrix, int octaveIndex);
     
     // A.3
     vector<Extrema> detectExtrema(const vector<Octave>& octaves);
@@ -89,8 +89,11 @@ private:
     // get DOG matrix of a specific keypoint
     Mat getDOGimageGivenKeypoint(const Extrema& keypoint, const vector<Octave> &octaves);
 
-    // crop kernel to fit matrix size
-    //void fitKernelToMatrixSize(Mat& kernel, const Mat& sourceMatrix);
+
+// Visualize keypoints
+    void visualizeKeypoints(const vector<Extrema> &keypoints, const Mat& coloredImage);
+
+
 };
 
 

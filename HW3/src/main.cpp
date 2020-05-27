@@ -9,11 +9,12 @@ void testSift(){
 	string  dataDir = "../data";
 	string imageDir = dataDir + "/sunflower_small.jpg";
 
-	Mat coloredImage = imread(imageDir);
+	Mat coloredImage = imread(imageDir, IMREAD_COLOR);
 	MyImage testImage(imageDir);
 
-	Sift siftDetector(1.4, 4, 3);
-	siftDetector.execute(testImage.getData());
+	Sift siftDetector(1.6, 4, 3);
+
+	siftDetector.execute(coloredImage);
 }
 void testHaris(){
 	string  dataDir = "../data";

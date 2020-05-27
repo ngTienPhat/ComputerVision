@@ -10,6 +10,7 @@ namespace MatrixHelper{
 
     float getMaxValue(const Mat& source);
     Mat applyOperator(const Mat& a, const Mat& b, string operatorName);
+    Mat convertToGrayscale(const Mat& source);
 
     int getMatrixArea(const Mat &source);
 
