@@ -9,6 +9,7 @@
 #include <cmath>
 #include <fstream>
 #include <sstream>
+#include <ctime>
 
 using namespace std;
 using namespace cv;

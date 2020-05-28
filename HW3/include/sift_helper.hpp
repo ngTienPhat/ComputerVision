@@ -18,6 +18,7 @@ struct Extrema{
     int octaveIndex; // index of its octave in all generated octaves
     int octaveDogIndex; // index of correspondent DoG layer in that its octave
     float orientation;
+    float realDOGindex;
     vector<float> descriptors;
 };
 

@@ -32,6 +32,8 @@ float substractFuntion(float a, float b){
 	return a-b;
 }
 
+
+
 template<class T>
 void extendVector(vector<T> &a, const vector<T> &b){
 	vector<T> res = a;

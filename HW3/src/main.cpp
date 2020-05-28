@@ -1,18 +1,15 @@
-#include "matrix_helper.hpp"
-#include "opencv_helper.hpp"
-#include "corner_detector.hpp"
 #include "blob_detector.hpp"
 #include "image.hpp"
-#include "sift.hpp"
+#include "keypoints_matcher.hpp"
 
 void testSift(){
-	string  dataDir = "../data";
-	string imageDir = dataDir + "/sunflower_small.jpg";
+	string  dataDir = "../data/TestImages";
+	string imageDir = dataDir + "/01.jpg";
 
 	Mat coloredImage = imread(imageDir, IMREAD_COLOR);
 	MyImage testImage(imageDir);
 
-	Sift siftDetector(1.6, 4, 3);
+	Sift siftDetector(1.6, 4, 4);
 
 	siftDetector.execute(coloredImage);
 }
@@ -61,5 +58,7 @@ int main(int argc, char** argv) {
 
 	// Mat result = MatrixHelper::convertMatExprToMat(a*b);
 	// cout << result;
+
+	
 	return 0;
 }

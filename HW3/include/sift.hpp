@@ -25,9 +25,13 @@ private:
 public:
     Sift(float sigma, int numOctave, int numScalesPerOctave, float k=sqrt(2));
 
-    /*Main function*/    
-    void execute(const Mat& source);
+    /*Main function*/
+    vector<Extrema> extractKeypoints(const string& imageDir);
+    vector<Extrema> execute(const Mat& source);
 
+private:
+    void writeKeypointsToFile(const string& filename, const vector<Extrema> &keypoints);
+    Mat preprocessInputImage(const string& imageDir);
 
 // ------------------------------------------------------------------------------------------------
 // HELPER FUNCTIONS
@@ -36,9 +40,10 @@ private:
 // D. Create Local Description 
     void createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Octave> &octaves);
 
+    int getSubregionIndexGivenCoordinate(int x, int y);
     Mat getPatchOfDescriptorAndWeightKernel(const Extrema &keypoint, const Mat& DOGimage, Mat& weightKernel);
     void generateKeypointDescriptorVector(Extrema& keypoint, const Mat& patch, const Mat& weight, int numSubRegion, int regionSize);
-
+    void normalizeDescriptorVector(vector<float> &descriptorVector, string type="L1");
 
 // C. Orientation assignment
     void assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<Octave> &octaves);
@@ -89,6 +94,10 @@ private:
     // get DOG matrix of a specific keypoint
     Mat getDOGimageGivenKeypoint(const Extrema& keypoint, const vector<Octave> &octaves);
 
+
+// ------------------------------------
+// Debug helper functions
+    void printKeypointInfo(const Extrema &point);
 
 // Visualize keypoints
     void visualizeKeypoints(const vector<Extrema> &keypoints, const Mat& coloredImage);

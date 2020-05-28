@@ -25,6 +25,6 @@ Mat OpencvHelper::derivative(const Mat& source, string axis){
 
 Mat OpencvHelper::conv2d(const Mat& source, const Mat& kernel){
     Mat result;
-    filter2D(source, result, CV_32F, kernel);
+    filter2D(source, result, -1, kernel);
     return result;
 }
