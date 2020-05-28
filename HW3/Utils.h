@@ -5,12 +5,16 @@
 
 #ifndef UTILS_H
 #define UTILS_H
+#define OPENCV_TRAITS_ENABLE_DEPRECATED
 
 #include<iostream>
 #include<cmath>
 #include<vector>
 #include<set>
 #include<fstream>
+#include"Libraries/Headers/opencv2/features2d/features2d.hpp"
+#include"Libraries/Headers/opencv2/flann/flann.hpp"
+#include"Libraries/Headers/opencv2/ml/ml.hpp"
 #include"Libraries/Headers/opencv2/imgproc/imgproc.hpp"
 #include"Libraries/Headers/opencv2/highgui/highgui.hpp"
 
