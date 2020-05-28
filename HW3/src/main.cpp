@@ -9,10 +9,25 @@ void testSift(){
 	Mat coloredImage = imread(imageDir, IMREAD_COLOR);
 	MyImage testImage(imageDir);
 
-	Sift siftDetector(1.6, 4, 4);
+	Sift siftDetector(1.6, 4, 5);
 
 	siftDetector.execute(coloredImage);
 }
+
+void testKeypointMatching(){
+	string  dataDir = "../data";
+	//string trainDir = dataDir + "/training_images/01_1.jpg";
+	//string testDir = dataDir + "/TestImages/01.jpg";
+	string trainDir = dataDir + "/training_images/train.jpg";
+	string testDir = dataDir + "/TestImages/test.jpg";
+	
+
+	KeypointsMatcher myMatcher;
+	myMatcher.knnMatchTwoImages(trainDir, testDir);
+	//myMatcher.knnMatchTwoImages(testDir, trainDir);
+
+}
+
 void testHaris(){
 	string  dataDir = "../data";
 	string imageDir = dataDir + "/lena.png";
@@ -51,14 +66,8 @@ void testBlobDog(){
 
 int main(int argc, char** argv) {
 
-	testSift();
+	//testSift();
+	testKeypointMatching();
 
-	// Mat a = (Mat_<float>(1,3) << 0, -1, 0); 
-	// Mat b = (Mat_<float>(3,1) << 0, -1, 0); 
-
-	// Mat result = MatrixHelper::convertMatExprToMat(a*b);
-	// cout << result;
-
-	
 	return 0;
 }

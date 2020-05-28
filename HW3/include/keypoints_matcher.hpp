@@ -16,13 +16,16 @@ private:
     // sift parameter:
     float siftBaseSigma = 1.6;
     int siftNumOctaves = 4;
-    int siftNumDOGperOctave = 3;
+    int siftNumDOGperOctave = 5;
 
 public:
-    // 
-    vector<PairKeypoint> matching(const string &imageTrain, const string& imageTest);
+    void knnMatchTwoImages(const string& imageTrain, const string& imageTest);
 
 private:
+    // use knn-match OpenCV
+    
+    void createInputForKNNmatcher(const vector<Extrema> &myKeypoints, Mat& descriptors, vector<KeyPoint> &keypoints);
+
     // init matrix of all keypoints detected in train image
     Mat initTrainMatrix(const vector<Extrema> &keypoints);
     
@@ -30,6 +33,7 @@ private:
 
     // get closest keypoint
     PairKeypoint getClosestKeypoint(const Mat &trainMatrix, const Mat& trainLabels, Extrema& testKp, const vector<Extrema>& listTrainKp);
+
 
     // visualize result
     void visualizeMatchingResult(const vector<PairKeypoint> &result, const string& imageTrain, const string& imageTest);

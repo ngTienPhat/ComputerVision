@@ -63,8 +63,8 @@ vector<Extrema> Sift::execute(const Mat& source){
     cout << "len descriptor vector: " << candidates[0].descriptors.size() << endl;
     cout << "time taken: " << (double)(clock() - start)/CLOCKS_PER_SEC << endl;
 
-    visualizeKeypoints(candidates, source);
-    writeKeypointsToFile("./result/keypoints.txt", candidates);
+    //visualizeKeypoints(candidates, source);
+    //writeKeypointsToFile("./result/keypoints.txt", candidates);
     
     return candidates;
 }
@@ -154,7 +154,7 @@ void Sift::createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Oct
             );
         }
         normalizeDescriptorVector(curKeypoint.descriptors, "L1");
-        //generateKeypointDescriptorVector(curKeypoint, patch, weightKernel, widthSubregion, descriptorWindowSize+1);
+        
         
         if (curKeypoint.descriptors.size() == 0){
             cout << "keypoint " << i << " has no description" << endl;
@@ -468,20 +468,19 @@ void Sift::thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> 
         
         // thresholding low-contrast keypoints
         
-        float contrast = getValueOfMatrix(kpDOG, curKeypoint.y, curKeypoint.x) + 
-                            0.5*MatrixHelper::convertMatExprToMat(localizationResult.jacobianMatrix.t() * localizationResult.offset).at<float>(0);
+        float contrast = getValueOfMatrix(kpDOG, curKeypoint.y, curKeypoint.x) + 0.5*convertMatExprToMat((localizationResult.jacobianMatrix.t()*localizationResult.offset)).at<float>(0,0) ;
         if (abs(contrast) < thresContrast)
             continue;
 
         // thresholding edge keypoints
         Mat H= localizationResult.hessianMatrix;
-        float traceH= getValueOfMatrix(H, 0, 0) + getValueOfMatrix(H, 0, 1);
+        float traceH= getValueOfMatrix(H, 0, 0) + getValueOfMatrix(H, 1, 1);
         float detH= getValueOfMatrix(H, 0, 0)*getValueOfMatrix(H, 1, 1) - 
                     getValueOfMatrix(H, 0, 1)*getValueOfMatrix(H, 1, 0);
         
         float r = traceH*traceH/detH;
         
-        if (r >= 1.0*(thresR+1)*(thresR+1)/thresR){
+        if (r > 1.0*(thresR+1)*(thresR+1)/thresR || detH < 0){
             continue;
         }
 
@@ -491,7 +490,6 @@ void Sift::thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> 
 
     keypoints = finalKeypoints;
 }
-
 
 
 
@@ -573,7 +571,7 @@ vector<Extrema> Sift::detectExtremaFromOctave(const Octave& progOctave, int octa
     vector<Extrema> octaveExtremas;
     int nDog = progOctave.dogImages.size();
     // loop over each DoG image
-    for(int i = 0; i < nDog; i++){
+    for(int i = 1; i < nDog-1; i++){
         Mat currentDog = progOctave.dogImages[i];
         int height = currentDog.rows;
         int width = currentDog.cols;
@@ -604,8 +602,8 @@ vector<Extrema> Sift::detectExtremaFromOctave(const Octave& progOctave, int octa
         // loop over each position and check if it is extrema or not
         for(int y = descriptorWindowSize/2; y < height-descriptorWindowSize/2; y++){
             for(int x = descriptorWindowSize/2; x < width-descriptorWindowSize/2; x++){
-                if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.3*maxValueOfSquaredDOG)
-                    continue;
+                // if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.3*maxValueOfSquaredDOG)
+                //     continue;
 
                 if (MatrixHelper::isLocalMaximaAmongNeighbors(squaredCurrentDoG, y, x, neighborDogs, 3)){
                     Extrema extrema({x, y, octaveIndex, i});

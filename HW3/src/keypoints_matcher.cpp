@@ -2,24 +2,87 @@
 
 using namespace MatrixHelper;
 
-vector<PairKeypoint> KeypointsMatcher::matching(const string &imageTrain, const string& imageTest){
-    vector<PairKeypoint> result;
+// ---------------------------------------------------------------------
+void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string& imageTest){
+    vector<KeyPoint> kp_train, kp_test;
+	vector<Mat> descriptors_train, descriptors_test;
+
     
-    Sift siftModel(siftBaseSigma, siftNumOctaves, siftNumDOGperOctave);
+    Sift siftModel1(siftBaseSigma, siftNumOctaves, siftNumDOGperOctave);
+    vector<Extrema> trainKeypoints = siftModel1.extractKeypoints(imageTrain);
 
-    vector<Extrema> trainKeypoints = siftModel.extractKeypoints(imageTrain);
-    vector<Extrema> testKeypoints = siftModel.extractKeypoints(imageTest);
+    Sift siftModel2(siftBaseSigma, siftNumOctaves, siftNumDOGperOctave);
+    vector<Extrema> testKeypoints = siftModel2.extractKeypoints(imageTest);
 
-    Mat trainMatrix = initTrainMatrix(trainKeypoints);
+    vector<KeyPoint> trainKp, testKp;
+    Mat trainDescrip, testDescrip;
+    createInputForKNNmatcher(trainKeypoints, trainDescrip, trainKp);
+    createInputForKNNmatcher(testKeypoints, testDescrip, testKp);
 
-    int nTestKeypoints = testKeypoints.size();
-    for(int i = 0; i < nTestKeypoints; i++){
-        PairKeypoint nearestKeypoint = getClosestKeypoint(trainMatrix, getTrainLabels(trainKeypoints), testKeypoints[i], trainKeypoints);
-        
-        result.push_back(nearestKeypoint);
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce");
+    vector<vector<DMatch>> matches;
+    vector<DMatch> goodMatches;
+    int k=2;
+
+    cout << "start matching points" << endl;
+    cout << "train keypoint: " << trainKp.size() << endl;
+    cout << "test keypoint: " << testKp.size() << endl;
+    cout << "train descrip matrix: "; MatrixHelper::printMatrixInfo(trainDescrip);
+    cout << "test descrip matrix: "; MatrixHelper::printMatrixInfo(testDescrip);
+
+    matcher->knnMatch(testDescrip, trainDescrip, matches, k);
+    cout << "matches: " << matches.size() << endl;
+
+    // thresholding result
+    const double ratio = 0.8;
+    for(int i = 0; i < matches.size(); i++){
+        if (matches[i].size() > 1){
+			 // As in Lowe's paper; can be tuned
+            //cout << matches[i][0].distance << endl;
+			if (matches[i][0].distance < ratio * matches[i][1].distance)
+				goodMatches.push_back(matches[i][0]);
+		}
+		else if (matches[i].size() == 1)
+			goodMatches.push_back(matches[i][0]);
+    }
+    cout << "good matches: " << goodMatches.size() << endl;
+
+    Mat trainImage = imread(imageTrain, IMREAD_COLOR);
+    Mat testImage = imread(imageTest, IMREAD_COLOR);
+
+    Mat imgMatches;
+    drawMatches(testImage, testKp, trainImage, trainKp, goodMatches, imgMatches, Scalar_<double>::all(-1), Scalar_<double>::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+    //-- Show detected matches
+    imshow("Matches", imgMatches );
+
+    waitKey(0);
+
+}   
+
+void KeypointsMatcher::createInputForKNNmatcher(const vector<Extrema> &myKeypoints, Mat& descriptors, vector<KeyPoint> &keypoints){
+    int nKp = myKeypoints.size();
+    int dimDescrip = myKeypoints[0].descriptors.size();
+    vector<int> rawIndex;
+    for(int i = 0; i < nKp; i++){
+        if(myKeypoints[i].octaveIndex > 0)
+            continue;
+        KeyPoint kp;
+        kp.pt = Point(myKeypoints[i].x, myKeypoints[i].y);
+        keypoints.push_back(kp);
+        rawIndex.push_back(i);
     }
 
-    return result;
+    int nFinalKp = keypoints.size();
+    descriptors = Mat::zeros(nFinalKp, dimDescrip, CV_32FC1);
+
+    for(int i = 0; i < nFinalKp; i++){
+        Extrema curRawKeypoint = myKeypoints[rawIndex[i]];
+        for(int j = 0; j < dimDescrip; j++){
+            setValueOfMatrix(descriptors, i, j, curRawKeypoint.descriptors[j]);
+        }
+    }
+
+    //cout <<descriptors << endl;
 }
 
 
