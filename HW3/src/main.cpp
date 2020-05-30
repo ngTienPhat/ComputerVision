@@ -16,10 +16,11 @@ void testSift(){
 
 void testKeypointMatching(){
 	string  dataDir = "../data";
-	//string trainDir = dataDir + "/training_images/01_1.jpg";
-	//string testDir = dataDir + "/TestImages/01.jpg";
-	string trainDir = dataDir + "/training_images/train.jpg";
-	string testDir = dataDir + "/TestImages/test.jpg";
+	string trainDir = dataDir + "/training_images/01_1.jpg";
+	string testDir = dataDir + "/TestImages/01.jpg";
+	
+	//string trainDir = dataDir + "/training_images/train.jpg";
+	//string testDir = dataDir + "/TestImages/test.jpg";
 	
 
 	KeypointsMatcher myMatcher;

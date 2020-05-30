@@ -24,7 +24,7 @@ public:
 private:
     // use knn-match OpenCV
     
-    void createInputForKNNmatcher(const vector<Extrema> &myKeypoints, Mat& descriptors, vector<KeyPoint> &keypoints);
+    void createInputForKNNmatcher(const vector<Extrema> &myKeypoints, Mat& descriptors, vector<KeyPoint> &keypoints, int octaveIndex);
 
     // init matrix of all keypoints detected in train image
     Mat initTrainMatrix(const vector<Extrema> &keypoints);

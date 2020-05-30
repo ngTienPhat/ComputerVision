@@ -4,9 +4,9 @@ using namespace MatrixHelper;
 
 Sift::Sift(float sigma, int numOctave, int numScalesPerOctave, float k){
     this->sigma = sigma;
-    this->numScalesPerOctave = numScalesPerOctave;
     this->numOctave = numOctave;
-    this->k = sqrt(2);
+    this->numScalesPerOctave = numScalesPerOctave;
+    this->k = pow(2, 1/2);
 
     for(int i = 0; i < numScalesPerOctave+1; i++){
         this->sigmaScale.push_back(sigma*pow(k, i));
@@ -24,10 +24,11 @@ vector<Extrema> Sift::execute(const Mat& source){
     Mat graySource = MatrixHelper::convertToGrayscale(source);
 
     //0. blur input image:
-    Mat blurSource = OpencvHelper::applyGaussianKernel(graySource, 1, kernelSize, 1.3);
+    float blurSigma = 1.2;
+    Mat blurSource = OpencvHelper::applyGaussianKernel(graySource, 1, getGaussKernelSize(blurSigma), blurSigma);
     //resize(blurSource, blurSource, cv::Size(), 2.0, 2.0, INTER_LINEAR);
 
-    cout << "input matrix: "; MatrixHelper::printMatrixInfo(blurSource);
+    cout << "input matrix: "; MatrixHelper::printMatrixInfo(graySource);
 
 // A. Detect candidate key points;
     //A.1. create Gaussian pyramid (stored in list of Octave):
@@ -56,7 +57,6 @@ vector<Extrema> Sift::execute(const Mat& source){
     assignKeypointsOrientation(candidates, octaves);
     cout << "num keypoints after assigning orientation: " << candidates.size() << endl;
 
-    
 
 // D. descrip keypoint
     createKeypointDescriptor(candidates, octaves);
@@ -435,7 +435,6 @@ LocalizationResult Sift::computeExtremaOffset(const Extrema &keypoint, const vec
                                                             dxy, dyy) ;
     
     return localizationResult;
-
 }
 
 void Sift::updateKeypointValue(Extrema& keypoint, const LocalizationResult& localizeInfo){
@@ -468,7 +467,8 @@ void Sift::thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> 
         
         // thresholding low-contrast keypoints
         
-        float contrast = getValueOfMatrix(kpDOG, curKeypoint.y, curKeypoint.x) + 0.5*convertMatExprToMat((localizationResult.jacobianMatrix.t()*localizationResult.offset)).at<float>(0,0) ;
+        float contrast = getValueOfMatrix(kpDOG, curKeypoint.y, curKeypoint.x) 
+                        + 0.5*convertMatExprToMat((localizationResult.jacobianMatrix.t()*localizationResult.offset)).at<float>(0,0) ;
         if (abs(contrast) < thresContrast)
             continue;
 
@@ -602,7 +602,7 @@ vector<Extrema> Sift::detectExtremaFromOctave(const Octave& progOctave, int octa
         // loop over each position and check if it is extrema or not
         for(int y = descriptorWindowSize/2; y < height-descriptorWindowSize/2; y++){
             for(int x = descriptorWindowSize/2; x < width-descriptorWindowSize/2; x++){
-                // if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.3*maxValueOfSquaredDOG)
+                // if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.2*maxValueOfSquaredDOG)
                 //     continue;
 
                 if (MatrixHelper::isLocalMaximaAmongNeighbors(squaredCurrentDoG, y, x, neighborDogs, 3)){
