@@ -9,8 +9,8 @@
 
 int main(int argc, char** argv)
 {
-	string image_name_train = "01_1", image_name_test = "01";
-	string image_type_train = "jpg", image_type_test = "jpg";
+	string image_name_train = "download", image_name_test = "02_3";
+	string image_type_train = "png", image_type_test = "jpg";
 
 	Mat src_train = imread(image_name_train + '.' + image_type_train, IMREAD_COLOR);
 	cout << "The input train_image information: ";
@@ -24,19 +24,27 @@ int main(int argc, char** argv)
 	HarrisDetector harrisDetector;
 	SiftDetector siftDetector;
 
+	Mat src = imread("butterfly.png", IMREAD_COLOR);
+	imshow("srcImage", src);
+
 	/* 1. Detect Corner using Harris Detector */
-	//harrisDetector.detectHarris(src);
+	//Mat src = imread("lena.png", IMREAD_COLOR);
+	//imshow("srcImage", src_train);
+	//vector<CornerPoint> corners = harrisDetector.detectHarris(src_train);
+	//harrisDetector.showCornerPoint(src_train, corners);
 
 	/* 2. Detect Blob using Blob, DoG Detector (blob slace space detection) */
-	//blobDetector.detectBlob(src);
+	set<tuple<int,int,float>> blob_pts = blobDetector.detectBlob(src, 1, sqrt(2), 0.4);
+	blobDetector.showBlobPoint_BlobDetector(src, blob_pts);
 
-	//blobDetector.detectDOG(src);
+	blob_pts = blobDetector.detectDOG(src);
+	blobDetector.showBlobPoint_DOGDetector(src, blob_pts);
 
 	/* 3. Extrace SIFT features from Image */
-	//if (siftDetector.matchingTwoImages(src_train, src_test))
+	//if (siftDetector.matchingTwoImages(src_train, src_test, 1))
 	//	cout << "Matching" << endl;
 
-	siftDetector.siftDetector(src_test);
+	//siftDetector.siftDetector(src_test);
 
 	return 0;
 }
