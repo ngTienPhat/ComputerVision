@@ -6,7 +6,7 @@ Sift::Sift(float sigma, int numOctave, int numScalesPerOctave, float k){
     this->sigma = sigma;
     this->numOctave = numOctave;
     this->numScalesPerOctave = numScalesPerOctave;
-    this->k = pow(2, 1/2);
+    this->k = sqrt(2);
 
     for(int i = 0; i < numScalesPerOctave+1; i++){
         this->sigmaScale.push_back(sigma*pow(k, i));
@@ -28,7 +28,7 @@ vector<Extrema> Sift::execute(const Mat& source){
     Mat blurSource = OpencvHelper::applyGaussianKernel(graySource, 1, 5, blurSigma);
     //resize(blurSource, blurSource, cv::Size(), 2.0, 2.0, INTER_LINEAR);
 
-    cout << "input matrix: "; MatrixHelper::printMatrixInfo(graySource);
+    cout << "input matrix: "; MatrixHelper::printMatrixInfo(blurSource);
 
 // A. Detect candidate key points;
     //A.1. create Gaussian pyramid (stored in list of Octave):
@@ -95,7 +95,7 @@ void Sift::writeKeypointsToFile(const string& filename, const vector<Extrema> &k
 }
 
 Mat Sift::preprocessInputImage(const string& imageDir){
-    Mat coloredImage = imread(imageDir, IMREAD_COLOR);
+    Mat coloredImage = imread(imageDir);
     return coloredImage;
 }
 
@@ -106,7 +106,7 @@ Mat Sift::preprocessInputImage(const string& imageDir){
 void Sift::createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Octave> &octaves){
     vector<Extrema> newKps;
     int nKeypoints = keypoints.size();
-    float weightKernelSigma = 1.6;//this->descriptorWindowSize/6.0;
+    float weightKernelSigma = descriptorWindowSize/6.0;
     Mat weightKernel = KernelGenerator::createGaussianKernel(this->descriptorWindowSize+1, weightKernelSigma);
     
     for(int i = 0; i < nKeypoints; i++){
@@ -125,8 +125,10 @@ void Sift::createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Oct
 
         // init list of all histograms for all subregions (default: 16)
         int nSubregion = pow(descriptorWindowSize/widthSubregion, 2); // default: 4^2 = 16
+        
         vector<OrientationHistogram> subregionHistograms;
         subregionHistograms.resize(nSubregion);
+
         for(int i = 0; i < subregionHistograms.size(); i++){
             subregionHistograms[i].size = descriptorNumBin; // default: 8
             subregionHistograms[i].histogram.resize(descriptorNumBin, 0.0); 
@@ -438,11 +440,17 @@ void Sift::thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> 
         
         float r = traceH*traceH/detH;
         
-        if (r > 1.0*(thresR+1)*(thresR+1)/thresR || detH < 0){
+        if (r > 1.0*(thresR+1)*(thresR+1)/thresR){
             continue;
         }
 
         updateKeypointValue(curKeypoint, localizationResult);
+
+        if (curKeypoint.x < descriptorWindowSize || curKeypoint.x >= kpDOG.cols - descriptorWindowSize ||
+            curKeypoint.y < descriptorWindowSize || curKeypoint.y >= kpDOG.rows - descriptorWindowSize){
+                continue;
+        }
+
         finalKeypoints.push_back(curKeypoint);
     }
 
@@ -636,7 +644,7 @@ vector<Extrema> Sift::detectExtremaFromOctave(const Octave& progOctave, int octa
     vector<Extrema> octaveExtremas;
     int nDog = progOctave.dogImages.size();
     // loop over each DoG image
-    for(int i = 1; i < nDog-1; i++){
+    for(int i = 0; i < nDog; i++){
         Mat currentDog = progOctave.dogImages[i];
         int height = currentDog.rows;
         int width = currentDog.cols;
@@ -741,7 +749,6 @@ void Sift::visualizeKeypoints(const vector<Extrema> &keypoints, const Mat& color
     imshow("sift keypoints", copyImage);
     waitKey(0);
 }
-
 
 void Sift::printKeypointInfo(const Extrema &point){
     cout << "x: " << point.x << ", ";

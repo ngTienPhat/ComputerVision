@@ -42,6 +42,7 @@ private:
     void executeBloblAlgorithm(string imageDir);
     void executeBlobDOGAlgorithm(string imageDir);
     void executeSiftAlgorithm(string imageDir);
+    void executeSiftMatchingImages(string trainImage, string testDir);
 
     /*
     Group of functions check command line validity

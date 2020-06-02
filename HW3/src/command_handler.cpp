@@ -97,6 +97,11 @@ void CommandHandler::executeAlgorithmWithGivenCommand(string imageDir, string co
     else if (commandName == "detect_sift"){
         executeSiftAlgorithm(imageDir);
     }
+    else if (commandName == "matching_images"){
+        string trainImg = imageDir;
+        string testImg = argv[3];
+        executeSiftMatchingImages(trainImg, testImg);
+    }
 }
 
 void CommandHandler::writeResultLineToFile(ofstream outFile, string lineResult){
@@ -147,6 +152,12 @@ void CommandHandler::executeSiftAlgorithm(string imageDir){
     siftDetector.execute(inputImage.getData());
 }
 
+void CommandHandler::executeSiftMatchingImages(string trainImage, string testDir){
+    cout << "Matching keypoints using Sift algorithm..." << endl;
+    KeypointsMatcher myMatcher;
+
+	myMatcher.knnMatchTwoImages(trainImage, testDir);
+}
 
 // Check valid commands
 bool CommandHandler::isValidCommands(){

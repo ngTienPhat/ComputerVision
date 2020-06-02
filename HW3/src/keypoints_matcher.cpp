@@ -11,7 +11,7 @@ void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string&
     vector<Extrema> testKeypoints = siftModel2.extractKeypoints(imageTest);
 
 
-    for(int j = 0; j < 1; j++){
+    for(int j = 0; j < siftNumOctaves; j++){
         vector<KeyPoint> kp_train, kp_test;
         vector<Mat> descriptors_train, descriptors_test;
 
