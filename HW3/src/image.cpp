@@ -1,8 +1,8 @@
 #include "image.hpp"
 
 // ------- CONSTRUCTOR ---------------------
-MyImage::MyImage(string imageDir, int loadType){
-    this->image = imread(imageDir, loadType);
+MyImage::MyImage(string imageDir){
+    this->image = imread(imageDir);
 }
 
 MyImage::MyImage(const Mat &image) {

@@ -6,7 +6,7 @@ Mat CornerDetector::harisCornerDetect(const Mat& source, float Rthreshold, float
     Mat result = Mat::zeros(height, width, CV_32SC1);
 
     // 1. blur image
-    Mat smoothenSource = OpencvHelper::applyGaussianKernel(source, 1);
+    Mat smoothenSource = OpencvHelper::applyGaussianKernel(MatrixHelper::convertToGrayscale(source), 1);
 
     // 2. calculate Ix, Iy of source image
     Mat Ix = OpencvHelper::derivative(smoothenSource, "x");
@@ -20,7 +20,6 @@ Mat CornerDetector::harisCornerDetect(const Mat& source, float Rthreshold, float
     Iy2 = OpencvHelper::applyGaussianKernel(Iy2, 1);
     Ixy = OpencvHelper::applyGaussianKernel(Ixy, 1);
 
-
     // 3. construct R matrix, R(x, y) = det M{x,y} - k.(trace M{x,y})^2
     Mat R = Mat::zeros(height, width, CV_32FC1);
     double maxR = -INT_MAX;
@@ -33,15 +32,14 @@ Mat CornerDetector::harisCornerDetect(const Mat& source, float Rthreshold, float
             double traceM = MatrixHelper::getValueOfMatrix(Ix2, y, x) + MatrixHelper::getValueOfMatrix(Iy2, y, x);
             double curRvalue = detM - empiricalConstant*pow(traceM, 2);
 
-            MatrixHelper::setValueOfMatrix(
-                R, y, x, curRvalue
-            );
+            // MatrixHelper::setValueOfMatrix(
+            //     R, y, x, curRvalue
+            // );
  
             maxR = max(maxR, curRvalue);
             MatrixHelper::setValueOfMatrix(R, y, x, (float)curRvalue);
         }
     }
-
     //4. Thresholding R matrix
     int numCorner=0;
     for(int y = 0; y < height; y++){
@@ -54,6 +52,9 @@ Mat CornerDetector::harisCornerDetect(const Mat& source, float Rthreshold, float
         }
     }
     
+    // visualize result
+    showResult(source, result);
+
     return result;
 }
 
@@ -76,5 +77,5 @@ void CornerDetector::showResult(const Mat& source, const Mat& result){
     //MyImage::showImageFromMatrix(source, "input", 0, 0);  
     //MyImage::showImageFromMatrix(copy, "after detect corner", width, 0);
     imshow("input", source);
-    imshow("haris result", copy);
+    imshow("Harris result", copy);
 }

@@ -14,7 +14,7 @@ private:
 public:
     // Constructor
     MyImage();
-    MyImage(string imageDir, int loadType=IMREAD_GRAYSCALE);
+    MyImage(string imageDir);
 	MyImage(const Mat &image);
 
     // Display images

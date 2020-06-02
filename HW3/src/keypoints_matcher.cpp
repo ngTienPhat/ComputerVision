@@ -11,22 +11,22 @@ void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string&
     vector<Extrema> testKeypoints = siftModel2.extractKeypoints(imageTest);
 
 
-    for(int i = 0; i < siftNumOctaves; i++){
+    for(int j = 0; j < 1; j++){
         vector<KeyPoint> kp_train, kp_test;
         vector<Mat> descriptors_train, descriptors_test;
 
         vector<KeyPoint> trainKp, testKp;
         Mat trainDescrip, testDescrip;
 
-        createInputForKNNmatcher(trainKeypoints, trainDescrip, trainKp, i);
-        createInputForKNNmatcher(testKeypoints, testDescrip, testKp, i);
+        createInputForKNNmatcher(trainKeypoints, trainDescrip, trainKp, j);
+        createInputForKNNmatcher(testKeypoints, testDescrip, testKp, j);
 
         Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce");
         vector<vector<DMatch>> matches;
         vector<DMatch> goodMatches;
         int k=2;
 
-        cout << "------ octave " << i << " -----------" << endl;
+        cout << "------ octave " << j << " -----------" << endl;
         cout << "start matching points" << endl;
         cout << "train keypoint: " << trainKp.size() << endl;
         cout << "test keypoint: " << testKp.size() << endl;
@@ -53,18 +53,18 @@ void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string&
         Mat trainImage = imread(imageTrain, IMREAD_COLOR);
         Mat testImage = imread(imageTest, IMREAD_COLOR);
         
-        if (i > 0){
-            resize(trainImage, trainImage, cv::Size(), pow(0.5, i), pow(0.5, i), INTER_NEAREST);
-            resize(testImage, testImage, cv::Size(), pow(0.5, i), pow(0.5, i), INTER_NEAREST);
-        }
+        resize(trainImage, trainImage, cv::Size(), pow(0.5, j), pow(0.5, j), INTER_NEAREST);
+        resize(testImage, testImage, cv::Size(), pow(0.5, j), pow(0.5, j), INTER_NEAREST);
+    
         cout << "train image size: "; MatrixHelper::printMatrixInfo(trainImage);
         cout << "test image size: "; MatrixHelper::printMatrixInfo(testImage);
 
         Mat imgMatches;
         drawMatches(testImage, testKp, trainImage, trainKp, goodMatches, imgMatches, Scalar_<double>::all(-1), Scalar_<double>::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+        
         //-- Show detected matches
-        string match_name = "Matching result-octave" + to_string(i);
-        imshow(match_name, imgMatches );
+        string match_name = "Matching result-octave" + to_string(j);
+        imshow(match_name, imgMatches);
     }
 
     waitKey(0);

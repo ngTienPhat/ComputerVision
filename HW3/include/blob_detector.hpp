@@ -15,14 +15,17 @@ private:
     static const float k;
 
 public:
-    static void detectBlob_LoG(const Mat& source);
-    static void detectBlob_DoG(const Mat& source);
+    static vector<Blob> detectBlob_LoG(const Mat& source, float startSigma=1.0, int nLayers=10);
+    static vector<Blob> detectBlob_DoG(const Mat& source, float startSigma=1.0, int nLayers=8);
 
 private:
-    static vector<Mat> getScaleLaplacianImages(const Mat& source, vector<float> &maxLogValues, float startSigma=1.0);
-    static vector<Mat> getScaleLaplacianImages_DoG(const Mat& source, vector<float> &maxLogValues, float startSigma=1.0);
+// helper function for detectBlob_LoG
+    static vector<Mat> getScaleLaplacianImages(const Mat& source, vector<float> &maxLogValues, float startSigma=1.0, int nLayers=10);
+    
+// helper function for detectBlob_DoG
+    static vector<Mat> getScaleLaplacianImages_DoG(const Mat& source, vector<float> &maxLogValues, float startSigma=1.0, int nLayers=8);
 
-    static vector<Blob> getLocalMaximumPoints(vector<Mat> listLogImages, const vector<float> &maxLogValues, float logThres = 0.3, float startSigma=1.0);
+    static vector<Blob> getLocalMaximumPoints(vector<Mat> listLogImages, const vector<float> &maxLogValues, float logThres = 0.05, float startSigma=1.0);
     
     
     static int getLogFilterSize(float sigma);

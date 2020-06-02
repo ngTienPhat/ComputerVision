@@ -16,7 +16,7 @@ private:
     // sift parameter:
     float siftBaseSigma = 1.6;
     int siftNumOctaves = 4;
-    int siftNumDOGperOctave = 5;
+    int siftNumDOGperOctave = 4;
 
 public:
     void knnMatchTwoImages(const string& imageTrain, const string& imageTest);

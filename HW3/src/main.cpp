@@ -1,10 +1,11 @@
 #include "blob_detector.hpp"
 #include "image.hpp"
 #include "keypoints_matcher.hpp"
+#include "command_handler.hpp"
 
 void testSift(){
-	string  dataDir = "../data/TestImages";
-	string imageDir = dataDir + "/01.jpg";
+	string  dataDir = "../data/training_images";
+	string imageDir = dataDir + "/01_1.jpg";
 
 	Mat coloredImage = imread(imageDir, IMREAD_COLOR);
 	MyImage testImage(imageDir);
@@ -13,14 +14,13 @@ void testSift(){
 
 	siftDetector.execute(coloredImage);
 }
-
 void testKeypointMatching(){
 	string  dataDir = "../data";
-	string trainDir = dataDir + "/training_images/01_1.jpg";
-	string testDir = dataDir + "/TestImages/01.jpg";
+	string trainDir = dataDir + "/TestImages/01.jpg";
+	string testDir = dataDir + "/training_images/01_1.jpg";
 	
-	//string trainDir = dataDir + "/training_images/train.jpg";
-	//string testDir = dataDir + "/TestImages/test.jpg";
+	// trainDir = dataDir + "/training_images/train.jpg";
+	// testDir = dataDir + "/TestImages/test.jpg";
 	
 
 	KeypointsMatcher myMatcher;
@@ -28,10 +28,9 @@ void testKeypointMatching(){
 	//myMatcher.knnMatchTwoImages(testDir, trainDir);
 
 }
-
 void testHaris(){
 	string  dataDir = "../data";
-	string imageDir = dataDir + "/lena.png";
+	string imageDir = dataDir + "/TestImages/01.jpg";
 
 	Mat coloredImage = imread(imageDir);
 	MyImage testImage(imageDir);	
@@ -43,7 +42,7 @@ void testHaris(){
 }
 void testBlob(){
 	string  dataDir = "../data";
-	string imageDir = dataDir + "/sunflower_small.jpg";
+	string imageDir = dataDir + "/TestImages/01.jpg";
 
 	Mat coloredImage = imread(imageDir);
 	MyImage testImage(imageDir);	
@@ -54,7 +53,7 @@ void testBlob(){
 }
 void testBlobDog(){
 	string  dataDir = "../data";
-	string imageDir = dataDir + "/sunflower_small.jpg";
+	string imageDir = dataDir + "/sunflower.jpg";
 
 	Mat coloredImage = imread(imageDir);
 	MyImage testImage(imageDir);	
@@ -66,9 +65,14 @@ void testBlobDog(){
 
 
 int main(int argc, char** argv) {
-
+	//testHaris();
+	//testBlob();
+	//testBlobDog();
 	//testSift();
-	testKeypointMatching();
+	//testKeypointMatching();
+
+	CommandHandler parser(argc, argv);
+	parser.execute();
 
 	return 0;
 }

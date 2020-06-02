@@ -39,21 +39,13 @@ private:
 private:
 // D. Create Local Description 
     void createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Octave> &octaves);
+    void createKeypointDescriptorForSpecificKeypoints(vector<Extrema> &keypoints, const Mat& DOGmatrix, float weightSigma, int weightSize=16);
 
-    int getSubregionIndexGivenCoordinate(int x, int y);
-    Mat getPatchOfDescriptorAndWeightKernel(const Extrema &keypoint, const Mat& DOGimage, Mat& weightKernel);
-    void generateKeypointDescriptorVector(Extrema& keypoint, const Mat& patch, const Mat& weight, int numSubRegion, int regionSize);
-    void normalizeDescriptorVector(vector<float> &descriptorVector, string type="L1");
 
 // C. Orientation assignment
     void assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<Octave> &octaves);
     
-    int quantizeOrientationBinOfKeypoint(const GradientResult &keypointGradient, int numBin);
-    GradientResult getGradientValueOfDOGpoint(int y, int x, const Mat& keypointDOG);
-    // fit parabola to get accurate orientation of chosen bin
-    float getOrientationByFittingParabola(const OrientationHistogram& orientationHistogram, int maxBinIndex, float binWidth);
-    //get max bin index
-    int getMaxHistogramIndex(const OrientationHistogram &histogram);
+    
     
 
 
@@ -82,8 +74,31 @@ private:
 
 
 // ------------------------------------------------------------------------------------------------------------------------
-// COMMON HELPER FUNCTIONS
-    // DoG helper function
+// HELPER FUNCTIONS
+// D. 
+    int getSubregionIndexGivenCoordinate(int x, int y);
+    void normalizeDescriptorVector(vector<float> &descriptorVector, string type="L1");
+
+    // [might be redundant]
+    Mat getPatchOfDescriptorAndWeightKernel(const Extrema &keypoint, const Mat& DOGimage, Mat& weightKernel);
+    void generateKeypointDescriptorVector(Extrema& keypoint, const Mat& patch, const Mat& weight, int numSubRegion, int regionSize);
+
+
+// C. 
+    int quantizeOrientationBinOfKeypoint(const GradientResult &keypointGradient, int numBin);
+
+    GradientResult getGradientValueOfDOGpoint(int y, int x, const Mat& keypointDOG);
+    
+    // fit parabola to get accurate orientation of chosen bin
+    float getOrientationByFittingParabola(const OrientationHistogram& orientationHistogram, int maxBinIndex, float binWidth);
+    //get max bin index
+    int getMaxHistogramIndex(const OrientationHistogram &histogram);
+
+
+
+// ----------------------------------------------------
+// Common helper functions
+    
     Mat getGaussKernel(float sigma);
     int getGaussKernelSize(float sigma=1.2);
     float getSigmaFromSpecificDog(int octaveIndex, int dogIndex);

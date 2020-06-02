@@ -24,8 +24,8 @@ vector<Extrema> Sift::execute(const Mat& source){
     Mat graySource = MatrixHelper::convertToGrayscale(source);
 
     //0. blur input image:
-    float blurSigma = 1.2;
-    Mat blurSource = OpencvHelper::applyGaussianKernel(graySource, 1, getGaussKernelSize(blurSigma), blurSigma);
+    float blurSigma = 1.3;
+    Mat blurSource = OpencvHelper::applyGaussianKernel(graySource, 1, 5, blurSigma);
     //resize(blurSource, blurSource, cv::Size(), 2.0, 2.0, INTER_LINEAR);
 
     cout << "input matrix: "; MatrixHelper::printMatrixInfo(graySource);
@@ -63,7 +63,7 @@ vector<Extrema> Sift::execute(const Mat& source){
     cout << "len descriptor vector: " << candidates[0].descriptors.size() << endl;
     cout << "time taken: " << (double)(clock() - start)/CLOCKS_PER_SEC << endl;
 
-    //visualizeKeypoints(candidates, source);
+    visualizeKeypoints(candidates, source);
     //writeKeypointsToFile("./result/keypoints.txt", candidates);
     
     return candidates;
@@ -106,12 +106,14 @@ Mat Sift::preprocessInputImage(const string& imageDir){
 void Sift::createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Octave> &octaves){
     vector<Extrema> newKps;
     int nKeypoints = keypoints.size();
-    float weightKernelSigma = this->descriptorWindowSize/6.0;
+    float weightKernelSigma = 1.6;//this->descriptorWindowSize/6.0;
+    Mat weightKernel = KernelGenerator::createGaussianKernel(this->descriptorWindowSize+1, weightKernelSigma);
+    
     for(int i = 0; i < nKeypoints; i++){
         //cout << "generate descriptor for keypoint " << i << endl;
         
         Extrema curKeypoint = keypoints[i];
-        Mat weightKernel = KernelGenerator::createGaussianKernel(this->descriptorWindowSize+1, weightKernelSigma);
+        
         Mat curDOGimage = octaves[curKeypoint.octaveIndex].dogImages[curKeypoint.octaveDogIndex];
         //printKeypointInfo(curKeypoint);
         // get region with size of this.descriptorWindowSize around keypoint and split weight kernel to fit it
@@ -171,35 +173,67 @@ void Sift::createKeypointDescriptor(vector<Extrema> &keypoints, const vector<Oct
     keypoints = newKps;
 }
 
-int Sift::getSubregionIndexGivenCoordinate(int x, int y){
-    int res;
-    if (x >= widthSubregion*2)
-        x--;
-    if (y >= widthSubregion*2)
-        y--;
-    
-    int orderX = x/widthSubregion;
-    int orderY = y/widthSubregion;
-    res = orderX*(descriptorWindowSize/widthSubregion) + orderY;
-    return res;
+void Sift::createKeypointDescriptorForSpecificKeypoints(vector<Extrema> &keypoints, const Mat& DOGmatrix, float weightSigma, int weightSize){
+    vector<Extrema> newKps;
+    int nKps = keypoints.size();
+    Mat weightKernel = KernelGenerator::createGaussianKernel(weightSize+1, weightSigma);
+
+    int widthSubregion=4;
+    int descriptorNumBin = 8;
+
+    for(int i = 0; i < nKps; i++){
+        Extrema curKeypoint = keypoints[i];
+        int top = max(0, curKeypoint.y - weightSize/2);
+        int left = max(0, curKeypoint.x - weightSize/2);
+        int bottom = min(DOGmatrix.rows-1, curKeypoint.y+weightSize/2);
+        int right = min(DOGmatrix.cols-1, curKeypoint.x+weightSize/2);
+
+        // init list of all histograms for all subregions (default: 16)
+        int nSubregion = pow(weightSize/4, 2); // default: 4^2 = 16
+        vector<OrientationHistogram> subregionHistograms;
+        subregionHistograms.resize(nSubregion);
+        for(int i = 0; i < subregionHistograms.size(); i++){
+            subregionHistograms[i].size = descriptorNumBin; // default: 8
+            subregionHistograms[i].histogram.resize(descriptorNumBin, 0.0); 
+        }
+
+
+        // loop over all positions in subregion and calculate their orientation
+        for(int y = top; y <= bottom; y++){
+            for(int x = left; x <= right; x++){
+                if(x-left == 2*widthSubregion || y-top == 2*widthSubregion)
+                    continue;
+
+                GradientResult gradientResult = Sift::getGradientValueOfDOGpoint(y, x, DOGmatrix);
+                float weight = getValueOfMatrix(weightKernel, y-top, x-left);
+                int curHistogramIndex = getSubregionIndexGivenCoordinate(x-left, y-top);
+                int binIdx = quantizeOrientationBinOfKeypoint(gradientResult, descriptorNumBin);
+
+                subregionHistograms[curHistogramIndex].histogram[binIdx] += weight*gradientResult.magnitude;
+            }
+        }
+
+        for(int i = 0; i < subregionHistograms.size(); i++){
+            curKeypoint.descriptors.insert(
+                curKeypoint.descriptors.end(), 
+                subregionHistograms[i].histogram.begin(),
+                subregionHistograms[i].histogram.end()
+            );
+        }
+        normalizeDescriptorVector(curKeypoint.descriptors, "L1");
+        
+        
+        if (curKeypoint.descriptors.size() == 0){
+            cout << "keypoint " << i << " has no description" << endl;
+        }
+        
+        newKps.push_back(curKeypoint);
+    }
+    keypoints = newKps;
 }
 
-void Sift::normalizeDescriptorVector(vector<float> &descriptorVector, string type){
-    float norm=0.0;
-    int vectorSize = descriptorVector.size();
-    for(int i = 0; i < vectorSize; i++){
-        if (type == "L1"){
-            norm += abs(descriptorVector[i]);
-        }
-        else if(type=="L2"){
-            norm += descriptorVector[i]*descriptorVector[i];
-        }
-    }
 
-    for(int i = 0; i < vectorSize; i++){
-        descriptorVector[i] /= norm;
-    }
-}
+
 
 // C. Orientation assignment
 void Sift::assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<Octave> &octaves){
@@ -293,82 +327,6 @@ void Sift::assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<O
 
     keypoints = newKeypoints;
 }
-
-// C - helper functions
-int Sift::quantizeOrientationBinOfKeypoint(const GradientResult &keypointGradient, int numBin){
-    int binWidth = 360/numBin;
-    int binIdx = int(floor(keypointGradient.theta))/binWidth;
-    return binIdx;
-}
-
-GradientResult Sift::getGradientValueOfDOGpoint(int y, int x, const Mat& keypointDOG){
-    GradientResult result; 
-
-    float dy = getValueOfMatrix(keypointDOG, min(keypointDOG.rows-1, y+1), x) -
-                getValueOfMatrix(keypointDOG, max(0, y-1), x);
-    float dx = getValueOfMatrix(keypointDOG, y, min(keypointDOG.cols-1, x+1)) -
-                getValueOfMatrix(keypointDOG, y, max(0, x-1));
-    
-    
-    result.magnitude = sqrt(dy*dy+dx*dx);
-    result.theta = atan2(dy, dx)*180/KernelGenerator::pi;
-    if (result.theta < 0) result.theta += 360;
-
-    return result;
-}
-
-float Sift::getOrientationByFittingParabola(const OrientationHistogram& orientationHistogram, int maxBinIndex, float binWidth){
-    float centerValue = maxBinIndex*binWidth + binWidth/2;
-    int nHist = orientationHistogram.size;
-
-    float rightValue, leftValue;
-    if (maxBinIndex == nHist-1){
-        rightValue = 360 + binWidth/2;
-    }
-    else{
-        rightValue = (maxBinIndex+1)*binWidth + binWidth/2;
-    }
-    if (maxBinIndex == 0){
-        leftValue = -binWidth/2;
-    }
-    else{
-        leftValue = (maxBinIndex-1)*binWidth + binWidth/2;
-    }
-
-    Mat A = (Mat_<float>(3,3) << pow(centerValue, 2), centerValue, 1, 
-			                     pow(rightValue, 2), rightValue, 1, 
-			                      pow(leftValue, 2), leftValue, 1);
-    
-    Mat B = (Mat_<float>(3,1) << orientationHistogram.histogram[maxBinIndex], 
-                                orientationHistogram.histogram[(maxBinIndex+1 )% nHist],
-                                orientationHistogram.histogram[(maxBinIndex-1) % nHist]);
-    
-    Mat output = A.inv()*B;
-    
-    float a = getValueOfMatrix(output, 0, 0);
-    float b = getValueOfMatrix(output, 0, 1);
-    if (a==0){
-        a = 1e-4;
-    }
-    return -b/(2*a);
-}
-
-//get max bin index, TODO
-int Sift::getMaxHistogramIndex(const OrientationHistogram &histogram){
-    int index = 0;
-    float maxValue = histogram.histogram[index];
-    for(int i = 1; i < this->orientationNumBin; i++){
-        if (histogram.histogram[i] > maxValue){
-            index = i;
-            maxValue = histogram.histogram[i];
-        }
-    }
-    return index;
-}
-
-
-
-
 
 
 
@@ -493,8 +451,6 @@ void Sift::thresholdingExtrema(vector<Extrema> &keypoints, const vector<Octave> 
 
 
 
-
-
 // A. 
 vector<Octave> Sift::createGaussianPyramid(const Mat& source){
     // "source" has already been blured with sigma = this->sigma
@@ -549,6 +505,116 @@ void Sift::createDogPyramidFromGaussPyramid(vector<Octave> &octaves){
 }
 
 
+// ----------------------------------------------------------------------------------------------------------------
+// HELPER FUNCTIONS AREA
+
+// D. 
+int Sift::getSubregionIndexGivenCoordinate(int x, int y){
+    int res;
+    if (x >= widthSubregion*2)
+        x--;
+    if (y >= widthSubregion*2)
+        y--;
+    
+    int orderX = x/widthSubregion;
+    int orderY = y/widthSubregion;
+    res = orderX*(descriptorWindowSize/widthSubregion) + orderY;
+    return res;
+}
+
+void Sift::normalizeDescriptorVector(vector<float> &descriptorVector, string type){
+    float norm=0.0;
+    int vectorSize = descriptorVector.size();
+    for(int i = 0; i < vectorSize; i++){
+        if (type == "L1"){
+            norm += abs(descriptorVector[i]);
+        }
+        else if(type=="L2"){
+            norm += descriptorVector[i]*descriptorVector[i];
+        }
+    }
+
+    for(int i = 0; i < vectorSize; i++){
+        descriptorVector[i] /= norm;
+    }
+}
+
+
+// C.
+int Sift::quantizeOrientationBinOfKeypoint(const GradientResult &keypointGradient, int numBin){
+    int binWidth = 360/numBin;
+    int binIdx = int(floor(keypointGradient.theta))/binWidth;
+    return binIdx;
+}
+
+GradientResult Sift::getGradientValueOfDOGpoint(int y, int x, const Mat& keypointDOG){
+    GradientResult result; 
+
+    float dy = getValueOfMatrix(keypointDOG, min(keypointDOG.rows-1, y+1), x) -
+                getValueOfMatrix(keypointDOG, max(0, y-1), x);
+    float dx = getValueOfMatrix(keypointDOG, y, min(keypointDOG.cols-1, x+1)) -
+                getValueOfMatrix(keypointDOG, y, max(0, x-1));
+    
+    
+    result.magnitude = sqrt(dy*dy+dx*dx);
+    result.theta = atan2(dy, dx)*180/KernelGenerator::pi;
+    if (result.theta < 0) result.theta += 360;
+
+    return result;
+}
+
+float Sift::getOrientationByFittingParabola(const OrientationHistogram& orientationHistogram, int maxBinIndex, float binWidth){
+    float centerValue = maxBinIndex*binWidth + binWidth/2;
+    int nHist = orientationHistogram.size;
+
+    float rightValue, leftValue;
+    if (maxBinIndex == nHist-1){
+        rightValue = 360 + binWidth/2;
+    }
+    else{
+        rightValue = (maxBinIndex+1)*binWidth + binWidth/2;
+    }
+    if (maxBinIndex == 0){
+        leftValue = -binWidth/2;
+    }
+    else{
+        leftValue = (maxBinIndex-1)*binWidth + binWidth/2;
+    }
+
+    Mat A = (Mat_<float>(3,3) << pow(centerValue, 2), centerValue, 1, 
+			                     pow(rightValue, 2), rightValue, 1, 
+			                      pow(leftValue, 2), leftValue, 1);
+    
+    Mat B = (Mat_<float>(3,1) << orientationHistogram.histogram[maxBinIndex], 
+                                orientationHistogram.histogram[(maxBinIndex+1 )% nHist],
+                                orientationHistogram.histogram[(maxBinIndex-1) % nHist]);
+    
+    Mat output = A.inv()*B;
+    
+    float a = getValueOfMatrix(output, 0, 0);
+    float b = getValueOfMatrix(output, 0, 1);
+    if (a==0){
+        a = 1e-4;
+    }
+    return -b/(2*a);
+}
+
+//get max bin index
+int Sift::getMaxHistogramIndex(const OrientationHistogram &histogram){
+    int index = 0;
+    float maxValue = histogram.histogram[index];
+    for(int i = 1; i < this->orientationNumBin; i++){
+        if (histogram.histogram[i] > maxValue){
+            index = i;
+            maxValue = histogram.histogram[i];
+        }
+    }
+    return index;
+}
+
+
+
+
 // --------------------------------------------------------
 // -------- EXTREMA DETECTION HELPER FUNCTIONS --------
 vector<Extrema> Sift::detectExtrema(const vector<Octave>& octaves){
@@ -565,7 +631,6 @@ vector<Extrema> Sift::detectExtrema(const vector<Octave>& octaves){
 
     return result;
 }
-
 
 vector<Extrema> Sift::detectExtremaFromOctave(const Octave& progOctave, int octaveIndex){
     vector<Extrema> octaveExtremas;
@@ -602,10 +667,13 @@ vector<Extrema> Sift::detectExtremaFromOctave(const Octave& progOctave, int octa
         // loop over each position and check if it is extrema or not
         for(int y = descriptorWindowSize/2; y < height-descriptorWindowSize/2; y++){
             for(int x = descriptorWindowSize/2; x < width-descriptorWindowSize/2; x++){
-                // if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.2*maxValueOfSquaredDOG)
-                //     continue;
+                if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.1*maxValueOfSquaredDOG)
+                    continue;
 
                 if (MatrixHelper::isLocalMaximaAmongNeighbors(squaredCurrentDoG, y, x, neighborDogs, 3)){
+                    // if (getValueOfMatrix(squaredCurrentDoG, y, x) < 0.3*maxValueOfSquaredDOG)
+                    //     continue;
+                    
                     Extrema extrema({x, y, octaveIndex, i});
                     octaveExtremas.push_back(extrema);
                 }
@@ -684,8 +752,7 @@ void Sift::printKeypointInfo(const Extrema &point){
 }
 
 
-// might be redundant
-
+// [might be redundant]
 void Sift::generateKeypointDescriptorVector(Extrema& keypoint, const Mat& patch, const Mat& weight, int widthSubRegion, int regionSize){
     int totalSubRegion = (int)widthSubRegion*widthSubRegion;
     int numSubregionAxis = (int)regionSize/widthSubRegion;

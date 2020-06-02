@@ -2,24 +2,26 @@
 
 const float BlobDetector::k = sqrt(2);
 
-void BlobDetector::detectBlob_LoG(const Mat& source){
+vector<Blob> BlobDetector::detectBlob_LoG(const Mat& source, float startSigma, int nLayers){
     //convert to gray image and remove noise
     Mat grayImage;
     cvtColor(source, grayImage, COLOR_BGR2GRAY);
-    Mat smoothenSource = OpencvHelper::applyGaussianKernel(grayImage, 1);
+    Mat smoothenSource = OpencvHelper::applyGaussianKernel(grayImage, 1.2);
 
     //1. generate scale-normalized LoG kernels and use them to filter image
     vector<float> maxLogValues;
-    vector<Mat> logImages = getScaleLaplacianImages(smoothenSource, maxLogValues);
+    vector<Mat> logImages = getScaleLaplacianImages(smoothenSource, maxLogValues, startSigma, nLayers);
 
     //2. find local maximum points
     vector<Blob> blobs = getLocalMaximumPoints(logImages, maxLogValues);
 
     //3. visualize result
     visualizeResult(source, blobs);
+
+    return blobs;
 }
 
-void BlobDetector::detectBlob_DoG(const Mat& source){
+vector<Blob> BlobDetector::detectBlob_DoG(const Mat& source, float startSigma, int nLayers){
     //convert to gray image and remove noise
     Mat grayImage;
     cvtColor(source, grayImage, COLOR_BGR2GRAY);
@@ -27,22 +29,23 @@ void BlobDetector::detectBlob_DoG(const Mat& source){
 
     //1. generate scale-normalized LoG kernels and use them to filter image
     vector<float> maxLogValues;
-    vector<Mat> logImages = getScaleLaplacianImages_DoG(smoothenSource, maxLogValues);
+    vector<Mat> logImages = getScaleLaplacianImages_DoG(smoothenSource, maxLogValues, startSigma, nLayers);
 
     //2. find local maximum points
     vector<Blob> blobs = getLocalMaximumPoints(logImages, maxLogValues);
 
     //3. visualize result
     visualizeResult(source, blobs);
+
+    return blobs;
 }
 
 // -----------------------------------------------------------------
 // --------------- HELPER FUNCTIONS --------------------------------
 
-vector<Mat> BlobDetector::getScaleLaplacianImages(const Mat& source, vector<float>& maxLogValues, float startSigma){
+vector<Mat> BlobDetector::getScaleLaplacianImages(const Mat& source, vector<float>& maxLogValues, float startSigma, int nLayers){
     vector<Mat> logImages;
-    int nLayers=8;
-    float sigma=startSigma;
+    float sigma = startSigma;
     
     for(int i = 1; i <= nLayers; i++){
         float scaledSigma = sigma * pow(k, i);
@@ -58,16 +61,14 @@ vector<Mat> BlobDetector::getScaleLaplacianImages(const Mat& source, vector<floa
     return logImages;
 }
 
-vector<Mat> BlobDetector::getScaleLaplacianImages_DoG(const Mat& source, vector<float> &maxLogValues, float startSigma){
+vector<Mat> BlobDetector::getScaleLaplacianImages_DoG(const Mat& source, vector<float> &maxLogValues, float startSigma, int nLayers){
     vector<Mat> dogImages;
-    int nLayers=8;
     float sigma=startSigma;
 
     Mat prevGauss = calculateGaussian(source, startSigma);
 
-    for(int i = 2; i <= nLayers; i++){
+    for(int i = 1; i <= nLayers; i++){
         float scaledSigma = sigma * pow(k, i);
-
         Mat curGauss = calculateGaussian(source, scaledSigma);
 
         // square dog image
@@ -91,7 +92,7 @@ vector<Blob> BlobDetector::getLocalMaximumPoints(vector<Mat> listLogImages, cons
 
     vector<Blob> candidates;
 
-    for(int i = 0; i < nImages; i++){
+    for(int i = 1; i < nImages-1; i++){
         vector<Mat> neighbors;
         if (i == 0){
             neighbors.push_back(listLogImages[i+1]);
@@ -125,7 +126,7 @@ void BlobDetector::visualizeResult(const Mat& source, vector<Blob> blobs){
     Mat copy = source.clone();
 
     for(int i = 0; i < blobs.size(); i++){
-        circle(copy, Point(blobs[i].x, blobs[i].y), blobs[i].radius, Scalar(0, 255, 0), 1);
+        circle(copy, Point(blobs[i].x, blobs[i].y), blobs[i].radius, Scalar(0, 0, 255), 1);
     }
 
     cout << "blob count: " << blobs.size() << endl;
