@@ -53,12 +53,12 @@ Mat CornerDetector::harisCornerDetect(const Mat& source, float Rthreshold, float
     }
     
     // visualize result
-    showResult(source, result);
+    //showResult(source, result);
 
-    return result;
+    return showResult(source, result);
 }
 
-void CornerDetector::showResult(const Mat& source, const Mat& result){
+Mat CornerDetector::showResult(const Mat& source, const Mat& result){
     int height = source.rows;
     int width = source.cols;
     int numCorner=0;
@@ -76,6 +76,8 @@ void CornerDetector::showResult(const Mat& source, const Mat& result){
     cout << "corner: " << numCorner << endl;
     //MyImage::showImageFromMatrix(source, "input", 0, 0);  
     //MyImage::showImageFromMatrix(copy, "after detect corner", width, 0);
-    imshow("input", source);
     imshow("Harris result", copy);
+    waitKey(0);
+
+    return copy;
 }

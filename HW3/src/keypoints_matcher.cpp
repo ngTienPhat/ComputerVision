@@ -3,15 +3,16 @@
 using namespace MatrixHelper;
 
 // ---------------------------------------------------------------------
-void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string& imageTest){
+Mat KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string& imageTest){
     Sift siftModel1(siftBaseSigma, siftNumOctaves, siftNumDOGperOctave);
     vector<Extrema> trainKeypoints = siftModel1.extractKeypoints(imageTrain);
 
     Sift siftModel2(siftBaseSigma, siftNumOctaves, siftNumDOGperOctave);
     vector<Extrema> testKeypoints = siftModel2.extractKeypoints(imageTest);
 
-
-    for(int j = 0; j < siftNumOctaves; j++){
+    Mat imgMatches;
+    
+    for(int j = 0; j < 1; j++){
         vector<KeyPoint> kp_train, kp_test;
         vector<Mat> descriptors_train, descriptors_test;
 
@@ -26,7 +27,7 @@ void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string&
         vector<DMatch> goodMatches;
         int k=2;
 
-        cout << "------ octave " << j << " -----------" << endl;
+        //cout << "------ octave " << j << " -----------" << endl;
         cout << "start matching points" << endl;
         cout << "train keypoint: " << trainKp.size() << endl;
         cout << "test keypoint: " << testKp.size() << endl;
@@ -59,7 +60,7 @@ void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string&
         cout << "train image size: "; MatrixHelper::printMatrixInfo(trainImage);
         cout << "test image size: "; MatrixHelper::printMatrixInfo(testImage);
 
-        Mat imgMatches;
+        
         drawMatches(testImage, testKp, trainImage, trainKp, goodMatches, imgMatches, Scalar_<double>::all(-1), Scalar_<double>::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
         
         //-- Show detected matches
@@ -68,6 +69,7 @@ void KeypointsMatcher::knnMatchTwoImages(const string& imageTrain, const string&
     }
 
     waitKey(0);
+    return imgMatches;
 }   
 
 void KeypointsMatcher::createInputForKNNmatcher(const vector<Extrema> &myKeypoints, Mat& descriptors, vector<KeyPoint> &keypoints, int octaveIndex){

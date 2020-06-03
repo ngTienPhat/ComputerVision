@@ -21,7 +21,7 @@ choose R > threshold T , T = Rthreshold * max(R)
 */
 static Mat harisCornerDetect(const Mat& source, float Rthreshold=0.01, float empiricalConstant=0.05);
 
-static void showResult(const Mat& source, const Mat& result);
+static Mat showResult(const Mat& source, const Mat& result);
 
 
 

@@ -1,12 +1,17 @@
 #pragma once
 
+#include "common.hpp"
 #include "sift_helper.hpp"
 #include "opencv_helper.hpp"
 #include "matrix_helper.hpp"
+#include "image.hpp"
 
 class Sift{
 // attributes
 private: 
+    // dir to sve results
+    string result_dir = "./result/sift";
+
     // Parameters for D
     int descriptorNumBin = 8;
     int widthSubregion = 4;
@@ -15,7 +20,7 @@ private:
     //Parameters for C
     int orientationNumBin=36; // number of orientation bin used in C.
     int kernelSize=5;
-    
+
     // Parameters for A
     float sigma;
     int numOctave; // default: 4
@@ -28,6 +33,10 @@ public:
     /*Main function*/
     vector<Extrema> extractKeypoints(const string& imageDir);
     vector<Extrema> execute(const Mat& source);
+
+
+    // Visualize keypoints
+    Mat visualizeKeypoints(const vector<Extrema> &keypoints, const string& imageDir);
 
 private:
     void writeKeypointsToFile(const string& filename, const vector<Extrema> &keypoints);
@@ -44,9 +53,7 @@ private:
 
 // C. Orientation assignment
     void assignKeypointsOrientation(vector<Extrema> &keypoints, const vector<Octave> &octaves);
-    
-    
-    
+
 
 
 
@@ -113,9 +120,6 @@ private:
 // ------------------------------------
 // Debug helper functions
     void printKeypointInfo(const Extrema &point);
-
-// Visualize keypoints
-    void visualizeKeypoints(const vector<Extrema> &keypoints, const Mat& coloredImage);
 
 
 };

@@ -16,6 +16,9 @@ private:
 
     vector<string> patternCommands;
 
+    // result dir
+    string result_dir="./result";
+
 public:
     //CommandHandler();
     CommandHandler(int argc, char** argv);
@@ -25,18 +28,14 @@ public:
     */
     void execute();
     
-    /*
-    This is used for testing with Canny algorithm only
-    */
-    void testAndSave(string saveDir);
+
 // HELPER FUNCTIONS
 private:
     /*
-    Group of helper functions apply edge detection algorithms based on user 
+    Group of helper functions to apply algorithms based on user 
     command line arguments
 
     Input: string of image path
-    Output: Matrix of result
     */
     void executeHarrisAlgorithm(string imageDir);
     void executeBloblAlgorithm(string imageDir);

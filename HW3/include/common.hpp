@@ -1,5 +1,4 @@
-#ifndef COMMON_HPP__
-#define COMMON_HPP__
+#pragma once
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
@@ -14,6 +13,7 @@
 using namespace std;
 using namespace cv;
 
+
 string getImageNameFromImageDir(string imageDir);
 
 float sumFunction(float a, float b);
@@ -24,4 +24,3 @@ float substractFuntion(float a, float b);
 template<class T>
 void extendVector(vector<T> &a, const vector<T> &b);
 
-#endif //COMMON_HPP__

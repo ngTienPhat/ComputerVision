@@ -26,59 +26,6 @@ void CommandHandler::execute(){
 
     executeAlgorithmWithGivenCommand(imgDir, exeCommand);
 
-    waitKey(0);
-}
-
-void CommandHandler::testAndSave(string saveDir){
-    // string imgDir = argv[1];
-    // string imgName = getImageNameFromImageDir(imgDir);
-    // cout << "processing " << imgName << " ..." << endl;
-
-    // Mat result = executeAlgorithmWithGivenCommand(imgDir, "detect_canny");
-
-    // int gaussSize = stoi(argv[3]);    
-    // float gaussStd = stof(argv[4]);
-    // int lowThres = stoi(argv[5]);
-    // int hightThres = stoi(argv[6]);
-    // int isPrint = stoi(argv[7]);
-
-    // MyImage sourceImage = MyImage(imgDir, IMREAD_GRAYSCALE);
-    // Mat opencvResult = opencvImageOperator::EdgeDetectCanny_opencv(sourceImage.getData(), lowThres, hightThres, gaussSize, gaussStd);
-
-    // ofstream resultFile;
-    // resultFile.open(saveDir+"/"+imgName+".txt", ios::out | ios::app);
-
-    // int tp = ImageOperator::calculateTruePositivePoints(result, opencvResult);
-    // int tn = ImageOperator::calculateTrueNegativePoints(result, opencvResult);
-    // int fp = ImageOperator::calculateFalsePositivePoints(result, opencvResult);
-    // int fn = ImageOperator::calculateFalseNegativePoints(result, opencvResult);
-    
-    // float imageTotalPoints = getMatrixArea(sourceImage.getData());
-
-    // string inputParams = "gaussSize: "+ argv[3] + 
-    //                         ", gaussSigma: " + argv[4] + 
-    //                         ", low_thres: " + argv[5] + 
-    //                         ", high_thres: " + argv[6];
-    // resultFile << inputParams <<endl;
-
-    // stringstream score;
-    // score << "\n true_positive: " << setprecision(2) <<(tp)
-    //     << "\n true_negative: " << setprecision(2) <<(tn)
-    //     << "\n false_positive: " << setprecision(2) <<(fp)
-    //     << "\n false_negative: " << setprecision(2) <<(fn)
-    //     << "\n false_total: " << (fp+fn)
-    //     << "\n precision: " << setprecision(2) <<(100*float(tp)/(tp+fp)) << "%"
-    //     << "\n recall: " << setprecision(2) <<(100*(float)tp/(tp+fn)) << "%"
-    //     << "\n true negative rate: " << setprecision(2) <<(100*(float)tn/(tn+fp)) << "%";
-        
-    // resultFile << score.str() << endl;
-    // resultFile << "------------------------------------------------" << endl;
-
-    // //print result images
-    // MyImage::saveImageFromMatrix(result, saveDir, "my_"+imgName); //save my result
-    // MyImage::saveImageFromMatrix(opencvResult, saveDir, "opencv_"+imgName); //save opencv result   
-
-    // cout << "Finish" << endl;
 }
 
 // --------------------------------------------------------
@@ -110,38 +57,48 @@ void CommandHandler::writeResultLineToFile(ofstream outFile, string lineResult){
 
 // Execute Algorithm given image dir
 void CommandHandler::executeHarrisAlgorithm(string imageDir){
+    cout << "----------------------------------------------"  << endl;
     cout << "Detecting corners with Harris algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir);
 
     float Rthreshold = stof(argv[3]);
     float empiricalConstant = stof(argv[4]);
 
-    CornerDetector::harisCornerDetect(inputImage.getData(), Rthreshold, empiricalConstant);
+    Mat res = CornerDetector::harisCornerDetect(inputImage.getData(), Rthreshold, empiricalConstant);
+    MyImage::saveImageFromMatrix(res, result_dir, "Harris_"+getImageNameFromImageDir(imageDir));
 }
 
 void CommandHandler::executeBloblAlgorithm(string imageDir){
+    cout << "----------------------------------------------"  << endl;
     cout << "Detecting blobs with Blob algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir);
+    Mat imgMatrix = inputImage.getData();
 
     float startSigma = stof(argv[3]);
     int nLayers = stoi(argv[4]);
 
-    BlobDetector::detectBlob_LoG(inputImage.getData(), startSigma, nLayers);
+    vector<Blob> res = BlobDetector::detectBlob_LoG(imgMatrix, startSigma, nLayers);
+    Mat visResult = BlobDetector::visualizeResult(imgMatrix, res);
+    MyImage::saveImageFromMatrix(visResult, result_dir, "LOG-blob_"+getImageNameFromImageDir(imageDir));
 }
 
 void CommandHandler::executeBlobDOGAlgorithm(string imageDir){
+    cout << "----------------------------------------------"  << endl;
     cout << "Detecting blobs with DOG-Blob algorithm..." << endl;
     MyImage inputImage = MyImage(imageDir);
+    Mat imgMatrix = inputImage.getData();
 
     float startSigma = stof(argv[3]);
     int nLayers = stoi(argv[4]);
 
-    BlobDetector::detectBlob_DoG(inputImage.getData(), startSigma, nLayers);
+    vector<Blob> res = BlobDetector::detectBlob_DoG(imgMatrix, startSigma, nLayers);
+    Mat visResult = BlobDetector::visualizeResult(imgMatrix, res);
+    MyImage::saveImageFromMatrix(visResult, result_dir, "DOG-blob_"+getImageNameFromImageDir(imageDir));
 }
 
 void CommandHandler::executeSiftAlgorithm(string imageDir){
+    cout << "----------------------------------------------"  << endl;
     cout << "Detecting keypoints with Sift algorithm..." << endl;
-    MyImage inputImage = MyImage(imageDir);
 
     float startSigma = stof(argv[3]);
     int numOctave = stoi(argv[4]);
@@ -149,14 +106,20 @@ void CommandHandler::executeSiftAlgorithm(string imageDir){
 
     Sift siftDetector(startSigma, numOctave, numScalesPerOctave);
 
-    siftDetector.execute(inputImage.getData());
+    vector<Extrema> kps = siftDetector.extractKeypoints(imageDir);
+    Mat resMat = siftDetector.visualizeKeypoints(kps, imageDir);
+    MyImage::saveImageFromMatrix(resMat, result_dir, "Sift_"+getImageNameFromImageDir(imageDir));
 }
 
 void CommandHandler::executeSiftMatchingImages(string trainImage, string testDir){
+    cout << "----------------------------------------------"  << endl;
     cout << "Matching keypoints using Sift algorithm..." << endl;
     KeypointsMatcher myMatcher;
 
-	myMatcher.knnMatchTwoImages(trainImage, testDir);
+	Mat visResult = myMatcher.knnMatchTwoImages(trainImage, testDir);
+    MyImage::saveImageFromMatrix(visResult, result_dir, "Sift-matching_"+
+                                                            getImageNameFromImageDir(trainImage)+"_"+
+                                                            getImageNameFromImageDir(testDir));
 }
 
 // Check valid commands

@@ -19,7 +19,7 @@ private:
     int siftNumDOGperOctave = 5;
 
 public:
-    void knnMatchTwoImages(const string& imageTrain, const string& imageTest);
+    Mat knnMatchTwoImages(const string& imageTrain, const string& imageTest);
 
 private:
     // use knn-match OpenCV

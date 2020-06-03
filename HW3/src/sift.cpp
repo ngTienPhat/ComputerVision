@@ -15,7 +15,9 @@ Sift::Sift(float sigma, int numOctave, int numScalesPerOctave, float k){
 
 vector<Extrema> Sift::extractKeypoints(const string& imageDir){
     Mat sourceMatrix = preprocessInputImage(imageDir);
-    return execute(sourceMatrix);
+    vector<Extrema> kps = execute(sourceMatrix);
+
+    return kps;
 }
 
 vector<Extrema> Sift::execute(const Mat& source){
@@ -63,7 +65,6 @@ vector<Extrema> Sift::execute(const Mat& source){
     cout << "len descriptor vector: " << candidates[0].descriptors.size() << endl;
     cout << "time taken: " << (double)(clock() - start)/CLOCKS_PER_SEC << endl;
 
-    visualizeKeypoints(candidates, source);
     //writeKeypointsToFile("./result/keypoints.txt", candidates);
     
     return candidates;
@@ -736,8 +737,10 @@ Mat Sift::getDOGimageGivenKeypoint(const Extrema& keypoint, const vector<Octave>
     return octaves[keypoint.octaveIndex].dogImages[keypoint.octaveDogIndex];
 }
 
-void Sift::visualizeKeypoints(const vector<Extrema> &keypoints, const Mat& coloredImage){
-    Mat copyImage = coloredImage.clone();
+Mat Sift::visualizeKeypoints(const vector<Extrema> &keypoints, const string& imageDir){
+    
+    Mat copyImage = imread(imageDir);
+
     for(int i = 0; i < keypoints.size(); i++){
         if (keypoints[i].octaveIndex==0){
             int x = keypoints[i].x;
@@ -746,8 +749,11 @@ void Sift::visualizeKeypoints(const vector<Extrema> &keypoints, const Mat& color
             circle(copyImage, Point(x, y), radius, Scalar(255, 0, 0), 2);
         }   
     }
+    cout << "print image" << endl;
     imshow("sift keypoints", copyImage);
     waitKey(0);
+    
+    return copyImage;
 }
 
 void Sift::printKeypointInfo(const Extrema &point){

@@ -1,6 +1,7 @@
 #include "blob_detector.hpp"
 
 const float BlobDetector::k = sqrt(2);
+const string BlobDetector::result_dir = "./result/blob";
 
 vector<Blob> BlobDetector::detectBlob_LoG(const Mat& source, float startSigma, int nLayers){
     //convert to gray image and remove noise
@@ -16,7 +17,7 @@ vector<Blob> BlobDetector::detectBlob_LoG(const Mat& source, float startSigma, i
     vector<Blob> blobs = getLocalMaximumPoints(logImages, maxLogValues);
 
     //3. visualize result
-    visualizeResult(source, blobs);
+    //visualizeResult(source, blobs);
 
     return blobs;
 }
@@ -35,7 +36,7 @@ vector<Blob> BlobDetector::detectBlob_DoG(const Mat& source, float startSigma, i
     vector<Blob> blobs = getLocalMaximumPoints(logImages, maxLogValues);
 
     //3. visualize result
-    visualizeResult(source, blobs);
+    //visualizeResult(source, blobs);
 
     return blobs;
 }
@@ -122,16 +123,18 @@ vector<Blob> BlobDetector::getLocalMaximumPoints(vector<Mat> listLogImages, cons
     return candidates;
 }
 
-void BlobDetector::visualizeResult(const Mat& source, vector<Blob> blobs){
-    Mat copy = source.clone();
+Mat BlobDetector::visualizeResult(const Mat& source, vector<Blob> blobs){
+    Mat copyImage = source.clone();
 
     for(int i = 0; i < blobs.size(); i++){
-        circle(copy, Point(blobs[i].x, blobs[i].y), blobs[i].radius, Scalar(0, 0, 255), 1);
+        circle(copyImage, Point(blobs[i].x, blobs[i].y), blobs[i].radius, Scalar(0, 0, 255), 1);
     }
 
     cout << "blob count: " << blobs.size() << endl;
-    imshow("input", source);
-    imshow("blob result", copy);
+    imshow("blob result", copyImage);
+
+    waitKey(0);
+    return copyImage;
 }
 
 int BlobDetector::getLogFilterSize(float sigma){
