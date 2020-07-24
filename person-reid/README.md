@@ -75,10 +75,7 @@ test.visrank True
 - Top-10 most similar images from the gallery
 ![visrank](meta/0001_c1s1_001051_00_rank.jpg)
 
-- Activation map indicates where the model focuses on to extract features
-![actmap](meta/0001_c1s1_001051_00_actmap.jpg)
-
-To inference my trained weights, please download weight from this [link]()
+- Activation map indicates where the model focuses on to extract features ![actmap](meta/0001_c1s1_001051_00_actmap.jpg)
 
 2. use tensorboard to visualize training logs:
 ```

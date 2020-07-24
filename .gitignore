@@ -1,6 +1,6 @@
 .DS_Store
 .vscode
-data/
+raw_data/
 HW2/bin
 HW3/bin
 HW3/result
@@ -10,7 +10,5 @@ Source2/.vs/Source2/v14/.suo
 result/*
 HW2/result
 HW2/result/*
-deep-person-reid/*
-deep-person-reid/
 OSNet/
 
