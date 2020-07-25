@@ -1,5 +1,7 @@
 # OS-Net implementation
-This repository is utilized and heavily depend on [deep-person-reid](https://github.com/KaiyangZhou/deep-person-reid).
+- This repository is utilized and heavily depend on [deep-person-reid](https://github.com/KaiyangZhou/deep-person-reid).
+
+- Students: Tien-Phat Nguyen, Khanh-Toan Nguyen
 
 ## Project organization
 ### Folders:
@@ -79,7 +81,7 @@ test.visrank True
 - Top-10 most similar images from the gallery
 ![visrank](meta/0001_c1s1_001051_00_rank.jpg)
 
-- Activation map indicates where the model focuses on to extract features
+- Activation map indicates where the model focuses on to extract features <br />
 ![actmap](meta/0001_c1s1_001051_00_actmap.jpg)
 
 2. use tensorboard to visualize training logs:
